@@ -5,22 +5,42 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+import com.example.zotov.weather.http.openweathermap.Api;
+import com.example.zotov.weather.http.openweathermap.Weather;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     LocationManager locationManager;
 
     TextView textLocation;
+
+    TextView textTemperature;
+
+    TextView textHumidity;
+
+    TextView textPressure;
+
+
 
     private static final String[] INITIAL_PERMS={
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -49,8 +69,15 @@ public class MainActivity extends AppCompatActivity {
         this.getSystemService(LOCATION_SERVICE);
 
         textLocation = (TextView) findViewById(R.id.location);
+        textTemperature = (TextView) findViewById(R.id.temperature);
+        textHumidity = (TextView) findViewById(R.id.humidity);
+        textPressure = (TextView) findViewById(R.id.pressure);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+
+
+
 
         if (!canAccessLocation()) {
             requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
@@ -63,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if(canAccessLocation()) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+           locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     1000 * 10, 10, locationListener);
             locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, 1000 * 10, 10,
@@ -83,7 +110,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void showLocation(Location location) {
         textLocation.setText(formatLocation(location));
-        
+
+        findTemp(location);
+
         locationManager.removeUpdates(locationListener);
     }
 
@@ -149,5 +178,42 @@ public class MainActivity extends AppCompatActivity {
 
     private void doLocationThing() {
         Toast.makeText(this, "Location", Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void findTemp(Location location) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://api.openweathermap.org")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        Api api = retrofit.create(Api.class);
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("lat", Double.toString(location.getLatitude()));
+        parameters.put("lon",  Double.toString(location.getLongitude()));
+        parameters.put("appid", "b644c4a94e897f47d46d2666d9c42a47");
+
+
+        Call <Weather> call =  api.getToDay(parameters);
+
+        call.enqueue(new Callback<Weather>() {
+            @Override
+            public void onResponse(Call<Weather> call, Response<Weather> response) {
+                if (response.isSuccessful()) {
+                    String str = "Temperature: " +  Double.toString(response.body().getMain().getTempC());
+                    textTemperature.setText(str);
+                    textHumidity.setText("Humidity:" + response.body().getMain().getHumidity());
+                    textPressure.setText("Pressure:" + response.body().getMain().getPressure());
+                } else {
+                    // error response, no access to resource?
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Weather> call, Throwable t) {
+                // something went completely south (like no internet connection)
+                Log.d("Error", t.getMessage());
+            }
+        });
     }
 }
