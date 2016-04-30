@@ -1,6 +1,7 @@
 package com.example.zotov.weather.http.openweathermap;
 
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.internal.Streams;
 
 /**
  * Created by zotov on 28.04.2016.
@@ -15,6 +16,12 @@ public class Weather {
     @SerializedName("main")
     private Main main;
 
+    @SerializedName("name")
+    private String city;
+
+    @SerializedName("wind")
+    private Wind wind;
+
     public Weather() {
     }
 
@@ -26,6 +33,14 @@ public class Weather {
 
     public Main getMain() {
         return main;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public Wind getWind() {
+        return wind;
     }
 
     public class Main {
@@ -59,8 +74,31 @@ public class Weather {
             this.humidity = humidity;
         }
 
-        public double getTempC() {
-            return Double.parseDouble(temp) - 272.15;
+        public int getTempCelsius() {
+            Double tmp = Double.parseDouble(temp) - 272.15;
+            return tmp.intValue();
+        }
+    }
+
+    public class  Wind {
+
+        @SerializedName("speed")
+        private double speed;
+
+        @SerializedName("deg")
+        private double deg;
+
+        public Wind(double speed, double deg) {
+            this.speed = speed;
+            this.deg = deg;
+        }
+
+        public double getSpeed() {
+            return speed;
+        }
+
+        public double getDeg() {
+            return deg;
         }
     }
 }

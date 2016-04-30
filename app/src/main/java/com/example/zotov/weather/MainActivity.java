@@ -2,6 +2,12 @@ package com.example.zotov.weather;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -9,8 +15,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +39,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.SynchronousQueue;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +52,22 @@ public class MainActivity extends AppCompatActivity {
     TextView textHumidity;
 
     TextView textPressure;
+
+    TextView textTemperatureMain;
+
+    TextView textWind;
+
+    LinearLayout linearLayoutMain;
+
+    LinearLayout linearLayoutDetails;
+
+    ProgressBar progressBar;
+
+    Button buttonRefresh;
+
+    Location currentLocation;
+
+    Boolean clickRefresh = false;
 
 
 
@@ -68,10 +97,25 @@ public class MainActivity extends AppCompatActivity {
 
         this.getSystemService(LOCATION_SERVICE);
 
-        textLocation = (TextView) findViewById(R.id.location);
-        textTemperature = (TextView) findViewById(R.id.temperature);
-        textHumidity = (TextView) findViewById(R.id.humidity);
-        textPressure = (TextView) findViewById(R.id.pressure);
+        textLocation = (TextView) findViewById(R.id.location_value);
+        textTemperature = (TextView) findViewById(R.id.temperature_value);
+        textHumidity = (TextView) findViewById(R.id.humidity_value);
+        textPressure = (TextView) findViewById(R.id.pressure_value);
+        textTemperatureMain = (TextView) findViewById(R.id.temperature_main);
+        textWind = (TextView) findViewById(R.id.wind_value);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        linearLayoutMain = (LinearLayout) findViewById(R.id.mail_liner_layout);
+        linearLayoutDetails = (LinearLayout) findViewById(R.id.lin_layout_deteils);
+        buttonRefresh = (Button) findViewById(R.id.button_refresh);
+
+        buttonRefresh.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                refresh();
+                clickRefresh = true;
+            }
+        });
+
+        progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -89,14 +133,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(canAccessLocation()) {
-           locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    1000 * 10, 10, locationListener);
-            locationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER, 1000 * 10, 10,
-                    locationListener);
-        }
-
+        refresh();
     }
 
     @Override
@@ -108,28 +145,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void showLocation(Location location) {
-        textLocation.setText(formatLocation(location));
-
-        findTemp(location);
-
-        locationManager.removeUpdates(locationListener);
-    }
-
-    private String formatLocation(Location location) {
-        if (location == null)
-            return "";
-        return String.format(
-                "Coordinates: lat = %1$.4f, lon = %2$.4f",
-                location.getLatitude(), location.getLongitude());
-    }
-
 
     private LocationListener locationListener = new LocationListener() {
 
         @Override
         public void onLocationChanged(Location location) {
-            showLocation(location);
+            currentLocation = location;
+            findTemp(location);
+            locationManager.removeUpdates(locationListener);
         }
 
         @Override
@@ -139,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onProviderEnabled(String provider) {
-            showLocation(locationManager.getLastKnownLocation(provider));
+            //showLocation(locationManager.getLastKnownLocation(provider));
         }
 
         @Override
@@ -180,8 +203,29 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Location", Toast.LENGTH_SHORT).show();
     }
 
+    private void refresh(){
+        buttonRefresh.setEnabled(false);
+        linearLayoutMain.setVisibility(View.GONE);
+        linearLayoutDetails.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+        if(currentLocation == null) {
+            if(canAccessLocation()) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                        1000 * 5, 10, locationListener);
+                locationManager.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER, 1000 * 5, 10,
+                        locationListener);
+            }
+        } else {
+            findTemp(currentLocation);
+        }
+
+    }
+
+
 
     private void findTemp(Location location) {
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://api.openweathermap.org")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -199,19 +243,40 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<Weather>() {
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
+
+                buttonRefresh.setEnabled(true);
+                progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful()) {
-                    String str = "Temperature: " +  Double.toString(response.body().getMain().getTempC());
+                    String str = Integer.toString(response.body().getMain().getTempCelsius());
                     textTemperature.setText(str);
-                    textHumidity.setText("Humidity:" + response.body().getMain().getHumidity());
-                    textPressure.setText("Pressure:" + response.body().getMain().getPressure());
+                    textTemperatureMain.setText(str);
+                    textHumidity.setText(response.body().getMain().getHumidity());
+                    textPressure.setText(response.body().getMain().getPressure());
+                    textLocation.setText(response.body().getCity());
+                    textWind.setText(Double.toString(response.body().getWind().getSpeed()));
+
+                    linearLayoutMain.setVisibility(View.VISIBLE);
+                    linearLayoutDetails.setVisibility(View.VISIBLE);
+                    if(clickRefresh) {
+                        Toast.makeText(getBaseContext(), "Данные успешно обновлены", Toast.LENGTH_LONG).show();
+                    }
+                    clickRefresh = false;
+
                 } else {
                     // error response, no access to resource?
                 }
+
+
             }
 
             @Override
             public void onFailure(Call<Weather> call, Throwable t) {
                 // something went completely south (like no internet connection)
+                progressBar.setVisibility(View.GONE);
+                linearLayoutMain.setVisibility(View.VISIBLE);
+                linearLayoutDetails.setVisibility(View.VISIBLE);
+                buttonRefresh.setEnabled(true);
+                Toast.makeText(getBaseContext(), "Ошибка при попытки соединиться к серверу", Toast.LENGTH_LONG).show();
                 Log.d("Error", t.getMessage());
             }
         });
