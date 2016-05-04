@@ -1,26 +1,24 @@
 package com.example.zotov.weather;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -35,15 +33,20 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import com.example.zotov.weather.http.openweathermap.Api;
 import com.example.zotov.weather.http.openweathermap.Weather;
 
-import java.io.IOException;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.SynchronousQueue;
 
 public class MainActivity extends AppCompatActivity {
 
-    LocationManager locationManager;
+    private LocationManager locationManager;
 
     TextView textLocation;
 
@@ -65,13 +68,16 @@ public class MainActivity extends AppCompatActivity {
 
     Button buttonRefresh;
 
+    FloatingActionButton btnOpenAddPlace;
+
     Location currentLocation;
 
     Boolean clickRefresh = false;
 
+    private  final int REQUEST_PLACE_PICKER = 12345;
 
 
-    private static final String[] INITIAL_PERMS={
+    private static final String[] INITIAL_PERMS = {
             Manifest.permission.ACCESS_FINE_LOCATION
     };
 
@@ -83,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int INITIAL_REQUEST = 1337;
 
     private static final int LOCATION_REQUEST = INITIAL_REQUEST + 1;
+
 
 
     @Override
@@ -108,26 +115,44 @@ public class MainActivity extends AppCompatActivity {
         linearLayoutDetails = (LinearLayout) findViewById(R.id.lin_layout_deteils);
         buttonRefresh = (Button) findViewById(R.id.button_refresh);
 
+        btnOpenAddPlace = (FloatingActionButton) findViewById(R.id.btn_open_add_place);
+
         buttonRefresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 refresh();
                 clickRefresh = true;
             }
         });
+        btnOpenAddPlace.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openFindPlace(v);
+
+            }
+        });
+
 
         progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
 
-
-
-
         if (!canAccessLocation()) {
             requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
         }
+    }
 
+    private void openFindPlace (View v) {
+        try {
 
+            Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                    .build(this);
+            startActivityForResult(intent, REQUEST_PLACE_PICKER);
+
+        } catch (GooglePlayServicesRepairableException e) {
+            // ...
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // ...
+        }
     }
 
     @Override
@@ -139,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if(canAccessLocation()) {
+        if (canAccessLocation()) {
             locationManager.removeUpdates(locationListener);
         }
 
@@ -174,12 +199,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch(requestCode) {
+        switch (requestCode) {
             case LOCATION_REQUEST:
                 if (canAccessLocation()) {
                     doLocationThing();
-                }
-                else {
+                } else {
                     bzzzt();
                 }
                 break;
@@ -192,24 +216,24 @@ public class MainActivity extends AppCompatActivity {
 
 
     private boolean canAccessLocation() {
-        return(hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+        return (hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
     }
 
     private boolean hasPermission(String perm) {
-        return(PackageManager.PERMISSION_GRANTED==checkSelfPermission(perm));
+        return (PackageManager.PERMISSION_GRANTED == checkSelfPermission(perm));
     }
 
     private void doLocationThing() {
         Toast.makeText(this, "Location", Toast.LENGTH_SHORT).show();
     }
 
-    private void refresh(){
+    private void refresh() {
         buttonRefresh.setEnabled(false);
         linearLayoutMain.setVisibility(View.GONE);
         linearLayoutDetails.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
-        if(currentLocation == null) {
-            if(canAccessLocation()) {
+        if (currentLocation == null) {
+            if (canAccessLocation()) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                         1000 * 5, 10, locationListener);
                 locationManager.requestLocationUpdates(
@@ -223,7 +247,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void findTemp(Location location) {
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -234,11 +257,11 @@ public class MainActivity extends AppCompatActivity {
         Api api = retrofit.create(Api.class);
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("lat", Double.toString(location.getLatitude()));
-        parameters.put("lon",  Double.toString(location.getLongitude()));
+        parameters.put("lon", Double.toString(location.getLongitude()));
         parameters.put("appid", "b644c4a94e897f47d46d2666d9c42a47");
 
 
-        Call <Weather> call =  api.getToDay(parameters);
+        Call<Weather> call = api.getToDay(parameters);
 
         call.enqueue(new Callback<Weather>() {
             @Override
@@ -257,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
 
                     linearLayoutMain.setVisibility(View.VISIBLE);
                     linearLayoutDetails.setVisibility(View.VISIBLE);
-                    if(clickRefresh) {
+                    if (clickRefresh) {
                         Toast.makeText(getBaseContext(), "Данные успешно обновлены", Toast.LENGTH_LONG).show();
                     }
                     clickRefresh = false;
@@ -280,5 +303,35 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Error", t.getMessage());
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode,
+                                    int resultCode, Intent data) {
+
+        if (requestCode == REQUEST_PLACE_PICKER
+                && resultCode == Activity.RESULT_OK) {
+
+            // The user has selected a place. Extract the name and address.
+            final Place place = PlacePicker.getPlace(data, this);
+
+            final CharSequence name = place.getName();
+            final CharSequence address = place.getAddress();
+            String attributions = PlacePicker.getAttributions(data);
+            if (attributions == null) {
+                attributions = "";
+            }
+
+           LatLng latLng = place.getLatLng();
+
+            Location location = new Location("Test");
+            location.setLatitude(latLng.latitude);
+            location.setLongitude(latLng.longitude);
+            currentLocation = location;
+            refresh();
+
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

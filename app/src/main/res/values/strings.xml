@@ -5,4 +5,9 @@
     <string name="text.current.humidity">Влажность:</string>
     <string name="text.current.location">Город:</string>
     <string name="text.current.wind">Ветер:</string>
+
+    <string name="title_activity_add_place">AddPlaceActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="placeholder_enter_place">Enter Place</string>
 </resources>
