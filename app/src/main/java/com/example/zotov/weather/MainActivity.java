@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Location;
@@ -30,6 +32,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import com.example.zotov.weather.Storage.DBHelper;
 import com.example.zotov.weather.http.openweathermap.Api;
 import com.example.zotov.weather.http.openweathermap.Weather;
 
@@ -42,7 +45,12 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.example.zotov.weather.Storage.models.City;
+import com.orm.SugarContext;
+import com.orm.SugarRecord;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -96,6 +104,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // remove title
+
+
+        DBHelper dbHelper  = new DBHelper(this, 1);
+
+
+        SugarContext.init(this);
+
+
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -139,6 +156,11 @@ public class MainActivity extends AppCompatActivity {
         if (!canAccessLocation()) {
             requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
         }
+
+        City city = SugarRecord.findById(City.class, (long)2);
+
+        System.out.println(city.getName());
+
     }
 
     private void openFindPlace (View v) {
@@ -328,6 +350,9 @@ public class MainActivity extends AppCompatActivity {
             location.setLatitude(latLng.latitude);
             location.setLongitude(latLng.longitude);
             currentLocation = location;
+            City city = new City((String) name, "", latLng.latitude, latLng.longitude);
+            System.out.println(city.save());
+
             refresh();
 
         } else {

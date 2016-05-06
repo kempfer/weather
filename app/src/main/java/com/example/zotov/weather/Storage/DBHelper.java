@@ -9,11 +9,9 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final String TABLE_NAME = "places";
+    public static final String TABLE_NAME = "city";
 
     public static final String COLUMN_NAME = "name";
-
-    public static final String COLUMN_CITY = "city";
 
     public static final String COLUMN_COUNTRY = "country";
 
@@ -25,9 +23,8 @@ public class DBHelper extends SQLiteOpenHelper {
     final String DATABASE_CREATE = "CREATE TABLE " + TABLE_NAME + " (\n" +
             "    id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
             "    " + COLUMN_NAME + " TEXT,\n" +
-            "    " + COLUMN_CITY + " TEXT,\n" +
-            "    " + COLUMN_COUNTRY + " TEXT\n" +
-            "    " + COLUMN_LONGITUDE + " REAL\n" +
+            "    " + COLUMN_COUNTRY + " TEXT,\n" +
+            "    " + COLUMN_LONGITUDE + " REAL,\n" +
             "    " + COLUMN_LATITUDE + " REAL\n" +
             ");";
 
