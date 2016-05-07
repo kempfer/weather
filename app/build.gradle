@@ -32,5 +32,4 @@ dependencies {
     compile 'com.android.support:support-v4:23.3.0'
     compile 'com.google.android.gms:play-services-fitness:8.4.0'
     compile 'com.google.android.gms:play-services-wearable:8.4.0'
-
 }

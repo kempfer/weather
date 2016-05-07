@@ -23,7 +23,7 @@ public class ListPlaceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_place);
-        placeList = (ListView) findViewById(R.id.place_list_view);
+        ListView placeList = (ListView) findViewById(R.id.place_list_view);
 
         dbHelper = new DBHelper(this, 1);
 
@@ -50,6 +50,8 @@ public class ListPlaceActivity extends AppCompatActivity {
 
 
         Cursor cursor = dbHelper.fetchAllPlaces();
+
+        ListView placeList = (ListView) findViewById(R.id.place_list_view);
 
         SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(
                 this, R.layout.place_list,

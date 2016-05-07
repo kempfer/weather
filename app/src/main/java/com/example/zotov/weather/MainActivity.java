@@ -4,20 +4,22 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -43,7 +45,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
-
+import android.support.v7.widget.Toolbar;
 import java.util.HashMap;
 
 import java.util.Map;
@@ -51,7 +53,7 @@ import java.util.Map;
 import com.example.zotov.weather.Storage.models.City;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,  AppBarLayout.OnOffsetChangedListener {
 
     private LocationManager locationManager;
 
@@ -81,9 +83,15 @@ public class MainActivity extends AppCompatActivity {
 
     Location currentLocation;
 
+    City currentCity;
+
     Boolean clickRefresh = false;
 
     DBHelper dbHelper;
+
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private AppBarLayout appBarLayout;
 
     private  final int REQUEST_PLACE_PICKER = 12345;
     private  final int REQUEST_PLACE_SELECTED = 12346;
@@ -113,16 +121,16 @@ public class MainActivity extends AppCompatActivity {
         dbHelper  = new DBHelper(this, 1);
         dbHelper.getWritableDatabase();
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        /*requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
         setContentView(R.layout.activity_main);
 
 
         this.getSystemService(LOCATION_SERVICE);
 
         textLocation = (TextView) findViewById(R.id.location_value);
-        textTemperature = (TextView) findViewById(R.id.temperature_value);
+       // textTemperature = (TextView) findViewById(R.id.temperature_value);
         textHumidity = (TextView) findViewById(R.id.humidity_value);
         textPressure = (TextView) findViewById(R.id.pressure_value);
         textTemperatureMain = (TextView) findViewById(R.id.temperature_main);
@@ -130,27 +138,19 @@ public class MainActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         linearLayoutMain = (LinearLayout) findViewById(R.id.mail_liner_layout);
         linearLayoutDetails = (LinearLayout) findViewById(R.id.lin_layout_deteils);
-        buttonRefresh = (Button) findViewById(R.id.button_refresh);
-        buttonOpenPlaceList = (FloatingActionButton) findViewById(R.id.btn_open_place_list);
+       // buttonRefresh = (Button) findViewById(R.id.button_refresh);
 
         btnOpenAddPlace = (FloatingActionButton) findViewById(R.id.btn_open_add_place);
 
-        buttonRefresh.setOnClickListener(new View.OnClickListener() {
+        /*buttonRefresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 refresh();
                 clickRefresh = true;
             }
-        });
+        });*/
         btnOpenAddPlace.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                openFindPlace(v);
-
-            }
-        });
-
-        buttonOpenPlaceList.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                openPlaceList(v);
+                openFindPlace();
 
             }
         });
@@ -167,9 +167,49 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
         }
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.inflateMenu(R.menu.main);
+        Resources res = getResources();
+        Drawable drawable = res.getDrawable(R.drawable.ic_action_name);
+        toolbar.setOverflowIcon(drawable);
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                onMenuItemClickM(item);
+                return  true;
+            }
+        });
+
+        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+
+
     }
 
-    private void openFindPlace (View v) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    private void   onMenuItemClickM (MenuItem item) {
+        if (item.getItemId() == R.id.action_refresh) {
+            refresh();
+            clickRefresh = true;
+        } else if(item.getItemId() == R.id.action_change_place) {
+            openPlaceList();
+        } else  if (item.getItemId() == R.id.action_current_location) {
+            currentLocation = null;
+            currentCity = null;
+            refresh();
+        } else if(item.getItemId()  == R.id.action_add_place) {
+            openFindPlace();
+        }
+    }
+
+    private void openFindPlace () {
 
         try {
 
@@ -184,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void openPlaceList(View v) {
+    private void openPlaceList() {
         Intent intent = new Intent(this, ListPlaceActivity.class);
         startActivityForResult(intent, REQUEST_PLACE_SELECTED);
     }
@@ -193,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         refresh();
+        appBarLayout.addOnOffsetChangedListener(this);
     }
 
     @Override
@@ -201,6 +242,7 @@ public class MainActivity extends AppCompatActivity {
         if (canAccessLocation()) {
             locationManager.removeUpdates(locationListener);
         }
+        appBarLayout.addOnOffsetChangedListener(this);
 
     }
 
@@ -262,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refresh() {
-        buttonRefresh.setEnabled(false);
+       // buttonRefresh.setEnabled(false);
         linearLayoutMain.setVisibility(View.GONE);
         linearLayoutDetails.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
@@ -301,21 +343,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
 
-                buttonRefresh.setEnabled(true);
+              //  buttonRefresh.setEnabled(true);
                 progressBar.setVisibility(View.GONE);
+
                 if (response.isSuccessful()) {
                     String str = Integer.toString(response.body().getMain().getTempCelsius());
-                    textTemperature.setText(str);
+                    /*textTemperature.setText(str);*/
                     textTemperatureMain.setText(str);
                     textHumidity.setText(response.body().getMain().getHumidity());
                     textPressure.setText(response.body().getMain().getPressure());
-                    textLocation.setText(response.body().getCity());
+                    if(currentCity != null) {
+                        textLocation.setText(currentCity.getName());
+                    } else {
+                        textLocation.setText(response.body().getCity());
+                    }
+
                     textWind.setText(Double.toString(response.body().getWind().getSpeed()));
 
                     linearLayoutMain.setVisibility(View.VISIBLE);
                     linearLayoutDetails.setVisibility(View.VISIBLE);
                     if (clickRefresh) {
                         Toast.makeText(getBaseContext(), "Данные успешно обновлены", Toast.LENGTH_LONG).show();
+                        mSwipeRefreshLayout.setRefreshing(false);
                     }
                     clickRefresh = false;
 
@@ -332,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 linearLayoutMain.setVisibility(View.VISIBLE);
                 linearLayoutDetails.setVisibility(View.VISIBLE);
-                buttonRefresh.setEnabled(true);
+            //    buttonRefresh.setEnabled(true);
                 Toast.makeText(getBaseContext(), "Ошибка при попытки соединиться к серверу", Toast.LENGTH_LONG).show();
                 Log.d("Error", t.getMessage());
             }
@@ -362,18 +411,20 @@ public class MainActivity extends AppCompatActivity {
             location.setLatitude(latLng.latitude);
             location.setLongitude(latLng.longitude);
             currentLocation = location;
-            dbHelper.addPlace((String) name, "", latLng.latitude, latLng.longitude);
+            long id = dbHelper.addPlace((String) name, "", latLng.latitude, latLng.longitude);
+
+            currentCity = dbHelper.findById(id);
 
             refresh();
 
         } else if ( requestCode == REQUEST_PLACE_SELECTED
                 && resultCode == Activity.RESULT_OK ) {
-            City  city = dbHelper.findById(data.getLongExtra("id", 1));
+            currentCity = dbHelper.findById(data.getLongExtra("id", 1));
 
             System.out.println(data.getLongExtra("id", 1));
             Location location = new Location("Test");
-            location.setLatitude(city.getLatitude());
-            location.setLongitude(city.getLongitude());
+            location.setLatitude(currentCity.getLatitude());
+            location.setLongitude(currentCity.getLongitude());
             currentLocation = location;
             refresh();
 
@@ -381,4 +432,24 @@ public class MainActivity extends AppCompatActivity {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
+
+    @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.setRefreshing(false);
+        clickRefresh = true;
+        System.out.println(mSwipeRefreshLayout.getPivotY());
+        refresh();
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+        if (i == 0) {
+            mSwipeRefreshLayout.setEnabled(true);
+        } else {
+            mSwipeRefreshLayout.setEnabled(false);
+        }
+    }
+
+
+
 }
