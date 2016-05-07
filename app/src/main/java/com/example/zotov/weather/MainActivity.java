@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
@@ -38,19 +39,17 @@ import com.example.zotov.weather.http.openweathermap.Weather;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 
 import com.example.zotov.weather.Storage.models.City;
-import com.orm.SugarContext;
-import com.orm.SugarRecord;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,13 +75,18 @@ public class MainActivity extends AppCompatActivity {
 
     Button buttonRefresh;
 
+    FloatingActionButton buttonOpenPlaceList;
+
     FloatingActionButton btnOpenAddPlace;
 
     Location currentLocation;
 
     Boolean clickRefresh = false;
 
+    DBHelper dbHelper;
+
     private  final int REQUEST_PLACE_PICKER = 12345;
+    private  final int REQUEST_PLACE_SELECTED = 12346;
 
 
     private static final String[] INITIAL_PERMS = {
@@ -106,12 +110,8 @@ public class MainActivity extends AppCompatActivity {
         // remove title
 
 
-        DBHelper dbHelper  = new DBHelper(this, 1);
-
-
-        SugarContext.init(this);
-
-
+        dbHelper  = new DBHelper(this, 1);
+        dbHelper.getWritableDatabase();
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         linearLayoutMain = (LinearLayout) findViewById(R.id.mail_liner_layout);
         linearLayoutDetails = (LinearLayout) findViewById(R.id.lin_layout_deteils);
         buttonRefresh = (Button) findViewById(R.id.button_refresh);
+        buttonOpenPlaceList = (FloatingActionButton) findViewById(R.id.btn_open_place_list);
 
         btnOpenAddPlace = (FloatingActionButton) findViewById(R.id.btn_open_add_place);
 
@@ -147,6 +148,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        buttonOpenPlaceList.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openPlaceList(v);
+
+            }
+        });
+
+
+
 
         progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
 
@@ -157,13 +167,10 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
         }
 
-        City city = SugarRecord.findById(City.class, (long)2);
-
-        System.out.println(city.getName());
-
     }
 
     private void openFindPlace (View v) {
+
         try {
 
             Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -175,6 +182,11 @@ public class MainActivity extends AppCompatActivity {
         } catch (GooglePlayServicesNotAvailableException e) {
             // ...
         }
+    }
+
+    private void openPlaceList(View v) {
+        Intent intent = new Intent(this, ListPlaceActivity.class);
+        startActivityForResult(intent, REQUEST_PLACE_SELECTED);
     }
 
     @Override
@@ -350,9 +362,19 @@ public class MainActivity extends AppCompatActivity {
             location.setLatitude(latLng.latitude);
             location.setLongitude(latLng.longitude);
             currentLocation = location;
-            City city = new City((String) name, "", latLng.latitude, latLng.longitude);
-            System.out.println(city.save());
+            dbHelper.addPlace((String) name, "", latLng.latitude, latLng.longitude);
 
+            refresh();
+
+        } else if ( requestCode == REQUEST_PLACE_SELECTED
+                && resultCode == Activity.RESULT_OK ) {
+            City  city = dbHelper.findById(data.getLongExtra("id", 1));
+
+            System.out.println(data.getLongExtra("id", 1));
+            Location location = new Location("Test");
+            location.setLatitude(city.getLatitude());
+            location.setLongitude(city.getLongitude());
+            currentLocation = location;
             refresh();
 
         } else {

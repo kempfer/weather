@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">weather</string>
-    <string name="text.current.temp">Температура:</string>
-    <string name="text.current.pressure">Давление:</string>
-    <string name="text.current.humidity">Влажность:</string>
-    <string name="text.current.location">Город:</string>
-    <string name="text.current.wind">Ветер:</string>
+    <string name="text.current.temp">Temperature:</string>
+    <string name="text.current.pressure">Pressure:</string>
+    <string name="text.current.humidity">Humidity:</string>
+    <string name="text.current.location">Place:</string>
+    <string name="text.current.wind">Wind:</string>
 
     <string name="title_activity_add_place">AddPlaceActivity</string>
     <string name="dummy_button">Dummy Button</string>

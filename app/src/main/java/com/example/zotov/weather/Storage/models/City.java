@@ -1,13 +1,6 @@
 package com.example.zotov.weather.Storage.models;
 
-import com.orm.SugarRecord;
-import com.orm.dsl.Table;
-
-/**
- * Created by zotov on 05.05.2016.
- */
-@Table
-public class City extends SugarRecord {
+public class City {
 
     private Long id;
 
@@ -19,21 +12,16 @@ public class City extends SugarRecord {
 
     private  double latitude;
 
-    public City(){
-
-    }
-
-    public City( String name, String country, double longitude, double latitude) {
-        super();
+    public City( String name, String country, double latitude, double longitude) {
         this.name = name;
         this.country = country;
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
-    @Override
+
     public Long getId() {
-        return id;
+        return id ;
     }
 
     @Override
