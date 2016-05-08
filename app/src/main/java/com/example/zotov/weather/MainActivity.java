@@ -13,16 +13,19 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -53,7 +56,7 @@ import java.util.Map;
 import com.example.zotov.weather.Storage.models.City;
 
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,  AppBarLayout.OnOffsetChangedListener {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private LocationManager locationManager;
 
@@ -91,7 +94,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private AppBarLayout appBarLayout;
+    private static float MAX_SWIPE_DISTANCE_FACTOR = 0.6f;
+    private static int DEFAULT_REFRESH_TRIGGER_DISTANCE = 200;
+
+    private int refreshTriggerDistance = DEFAULT_REFRESH_TRIGGER_DISTANCE;
 
     private  final int REQUEST_PLACE_PICKER = 12345;
     private  final int REQUEST_PLACE_SELECTED = 12346;
@@ -109,6 +115,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private static final int INITIAL_REQUEST = 1337;
 
     private static final int LOCATION_REQUEST = INITIAL_REQUEST + 1;
+
+    private float XswipeRefreshLayout = 0;
+    private float YswipeRefreshLayout = 0;
+    private float distancesSwipeRefreshLayout = 0;
 
 
 
@@ -180,10 +190,38 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
 
-        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+
+        CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+
+        coordinatorLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: // нажатие
+                        if(event.getY() > 400) {
+                            mSwipeRefreshLayout.setEnabled(false);
+                        } else {
+                            mSwipeRefreshLayout.setEnabled(true);
+                        }
+
+                        XswipeRefreshLayout = event.getX();
+                        YswipeRefreshLayout = event.getY();
+                        break;
+                    case MotionEvent.ACTION_MOVE: // движение
+                        System.out.println("Y: " + event.getY());
+                        System.out.println("X: " + event.getX());
+                        break;
+                    case MotionEvent.ACTION_UP: // отпускание
+                    case MotionEvent.ACTION_CANCEL:
+                        mSwipeRefreshLayout.setEnabled(true);
+                        break;
+                }
+                return false;
+            }
+        });
 
 
     }
@@ -233,7 +271,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     protected void onResume() {
         super.onResume();
         refresh();
-        appBarLayout.addOnOffsetChangedListener(this);
     }
 
     @Override
@@ -242,7 +279,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (canAccessLocation()) {
             locationManager.removeUpdates(locationListener);
         }
-        appBarLayout.addOnOffsetChangedListener(this);
 
     }
 
@@ -437,17 +473,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onRefresh() {
         mSwipeRefreshLayout.setRefreshing(false);
         clickRefresh = true;
-        System.out.println(mSwipeRefreshLayout.getPivotY());
         refresh();
-    }
-
-    @Override
-    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-        if (i == 0) {
-            mSwipeRefreshLayout.setEnabled(true);
-        } else {
-            mSwipeRefreshLayout.setEnabled(false);
-        }
     }
 
 
