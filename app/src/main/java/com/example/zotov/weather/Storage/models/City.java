@@ -12,11 +12,12 @@ public class City {
 
     private  double latitude;
 
-    public City( String name, String country, double latitude, double longitude) {
+    public City( String name, String country, double latitude, double longitude, Long id) {
         this.name = name;
         this.country = country;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.id = id;
     }
 
 

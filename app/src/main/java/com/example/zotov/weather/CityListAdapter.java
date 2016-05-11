@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SimpleCursorAdapter;
-import android.widget.Toast;
 
 import com.example.zotov.weather.Storage.DBHelper;
 
@@ -40,12 +39,13 @@ public class CityListAdapter extends SimpleCursorAdapter {
         final Cursor currentCursor = cursor;
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+           @Override
+           public void onClick(View v) {
                 deleteCity( v, itemId, currentCursor);
             }
         });
     }
+
 
     private void deleteCity (View v, String cityId, Cursor cursor) {
         dbHelper.deletePlaceById(cityId);

@@ -24,6 +24,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String COLUMN_LATITUDE = "latitude";
 
+    public static final String EXTERNAL_ID = "external_id";
+
 
 
     final String DATABASE_CREATE = "CREATE TABLE " + TABLE_NAME + " (\n" +
@@ -31,7 +33,8 @@ public class DBHelper extends SQLiteOpenHelper {
             "    " + COLUMN_NAME + " TEXT,\n" +
             "    " + COLUMN_COUNTRY + " TEXT,\n" +
             "    " + COLUMN_LONGITUDE + " REAL,\n" +
-            "    " + COLUMN_LATITUDE + " REAL\n" +
+            "    " + COLUMN_LATITUDE + " REAL,\n" +
+            "    " + EXTERNAL_ID + " TEXT\n" +
             ");";
 
     private static final String DB_NAME = "weather.db";
@@ -93,7 +96,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 mCursor.getString(mCursor.getColumnIndexOrThrow("name")),
                 mCursor.getString(mCursor.getColumnIndexOrThrow("country")),
                 mCursor.getDouble(mCursor.getColumnIndexOrThrow("latitude")),
-                mCursor.getDouble(mCursor.getColumnIndexOrThrow("longitude"))
+                mCursor.getDouble(mCursor.getColumnIndexOrThrow("longitude")),
+                mCursor.getLong(mCursor.getColumnIndexOrThrow("id"))
                 );
 
         db.close();
@@ -103,18 +107,23 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public long addPlace(String name, String country, double latitude, double longitude) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues initialValues = new ContentValues();
-        initialValues.put(COLUMN_NAME, name);
-        initialValues.put(COLUMN_COUNTRY, country);
-        initialValues.put(COLUMN_LATITUDE, latitude);
-        initialValues.put(COLUMN_LONGITUDE, longitude);
+    public long addPlace(String name, String country, double latitude, double longitude, String externalId ) {
+        City city = findByExternalId(externalId);
+        if( city == null) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(COLUMN_NAME, name);
+            initialValues.put(COLUMN_COUNTRY, country);
+            initialValues.put(COLUMN_LATITUDE, latitude);
+            initialValues.put(COLUMN_LONGITUDE, longitude);
+            initialValues.put(EXTERNAL_ID, externalId);
 
-        long id =  db.insert("city", null, initialValues);
-        db.close();
-
-        return id;
+            long id =  db.insert("city", null, initialValues);
+            db.close();
+            return id;
+        } else {
+            return  city.getId();
+        }
     }
 
     public int deletePlaceById (String id) {
@@ -123,6 +132,36 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return result;
+    }
+
+    public City findByExternalId(String externalId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor mCursor = db.rawQuery("SELECT * FROM city WHERE external_id = ?", new String[]{externalId});
+
+        City city = null;
+
+        if(mCursor != null && mCursor.getCount() > 0) {
+            mCursor.moveToFirst();
+            city = new City(
+                    mCursor.getString(mCursor.getColumnIndexOrThrow("name")),
+                    mCursor.getString(mCursor.getColumnIndexOrThrow("country")),
+                    mCursor.getDouble(mCursor.getColumnIndexOrThrow("latitude")),
+                    mCursor.getDouble(mCursor.getColumnIndexOrThrow("longitude")),
+                    mCursor.getLong(mCursor.getColumnIndexOrThrow("id"))
+            );
+
+
+
+            mCursor.close();
+        }
+
+
+        db.close();
+
+
+        return city;
+
     }
 
 

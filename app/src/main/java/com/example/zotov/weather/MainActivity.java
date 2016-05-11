@@ -388,15 +388,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     String str = Integer.toString(response.body().getMain().getTempCelsius());
                     /*textTemperature.setText(str);*/
                     textTemperatureMain.setText(str);
-                    textHumidity.setText(response.body().getMain().getHumidity());
-                    textPressure.setText(response.body().getMain().getPressure());
+                    textHumidity.setText(response.body().getMain().getHumidity() + " %");
+                    textPressure.setText(response.body().getMain().getPressure() + " hpa");
                     if(currentCity != null) {
                         textLocation.setText(currentCity.getName());
                     } else {
                         textLocation.setText(response.body().getCity());
                     }
 
-                    textWind.setText(Double.toString(response.body().getWind().getSpeed()));
+                    textWind.setText(Double.toString(response.body().getWind().getSpeed()) + " м/с");
 
                     linearLayoutMain.setVisibility(View.VISIBLE);
                     linearLayoutDetails.setVisibility(View.VISIBLE);
@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             location.setLatitude(latLng.latitude);
             location.setLongitude(latLng.longitude);
             currentLocation = location;
-            long id = dbHelper.addPlace((String) name, "", latLng.latitude, latLng.longitude);
+            long id = dbHelper.addPlace((String) name, "", latLng.latitude, latLng.longitude, place.getId());
 
             currentCity = dbHelper.findById(id);
 
