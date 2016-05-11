@@ -117,4 +117,13 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    public int deletePlaceById (String id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete("city", "id = ?", new String[]{id});
+        db.close();
+
+        return result;
+    }
+
+
 }

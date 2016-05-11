@@ -105,9 +105,12 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/location_value"
                         android:textColor="@color/colorFontWhite"
+                        android:scrollHorizontally="true"
+                        android:ellipsize="end"
                         android:text="Запорожье"
                         android:textSize="24sp"
                         android:layout_marginLeft="10dp"
+                        android:maxLines="1"
                         android:layout_row="0"
                         android:layout_column="1" />
 

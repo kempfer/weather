@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -17,13 +19,16 @@ public class ListPlaceActivity extends AppCompatActivity {
 
     ListView placeList;
 
+    Button listItemDeleteBtn;
+
     DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_place);
-        ListView placeList = (ListView) findViewById(R.id.place_list_view);
+        placeList = (ListView) findViewById(R.id.place_list_view);
+
 
         dbHelper = new DBHelper(this, 1);
 
@@ -34,12 +39,12 @@ public class ListPlaceActivity extends AppCompatActivity {
             }
         });
 
-
         placeList.setAdapter(getGuideAdapter());
+
 
     }
 
-    private SimpleCursorAdapter getGuideAdapter () {
+    private CityListAdapter getGuideAdapter () {
         String[] columns = new String[]{
                 DBHelper.COLUMN_NAME
         };
@@ -51,14 +56,13 @@ public class ListPlaceActivity extends AppCompatActivity {
 
         Cursor cursor = dbHelper.fetchAllPlaces();
 
-        ListView placeList = (ListView) findViewById(R.id.place_list_view);
-
-        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(
+        CityListAdapter dataAdapter = new CityListAdapter(
                 this, R.layout.place_list,
                 cursor,
                 columns,
                 to,
                 0);
+        dataAdapter.setDbHelper(dbHelper);
 
         return dataAdapter;
     }
