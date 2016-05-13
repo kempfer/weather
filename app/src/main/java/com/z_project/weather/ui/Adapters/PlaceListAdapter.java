@@ -64,6 +64,15 @@ public class PlaceListAdapter  extends SimpleCursorAdapter {
 
     private void deleteCity (View v, String cityId, Cursor cursor) {
         placeStorage.deletePlaceById(cityId);
+
+        if(cursor.moveToPrevious()) {
+            String itemPreviousId = cursor.getString(cursor.getColumnIndex("_id"));
+            placeStorage.selectedById(itemPreviousId);
+
+        } else if (cursor.moveToNext()) {
+            String itemNextId = cursor.getString(cursor.getColumnIndex("_id"));
+            placeStorage.selectedById(itemNextId);
+        }
         refresh();
     }
 
