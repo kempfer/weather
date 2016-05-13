@@ -56,23 +56,26 @@ public class PlaceListAdapter  extends SimpleCursorAdapter {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteCity( v, itemId, currentCursor);
+                deleteCity( v, itemId, currentCursor, selected);
             }
         });
     }
 
 
-    private void deleteCity (View v, String cityId, Cursor cursor) {
+    private void deleteCity (View v, String cityId, Cursor cursor, int selected) {
         placeStorage.deletePlaceById(cityId);
 
-        if(cursor.moveToPrevious()) {
-            String itemPreviousId = cursor.getString(cursor.getColumnIndex("_id"));
-            placeStorage.selectedById(itemPreviousId);
+        if(selected == 1) {
+            if(cursor.moveToPrevious()) {
+                String itemPreviousId = cursor.getString(cursor.getColumnIndex("_id"));
+                placeStorage.selectedById(itemPreviousId);
 
-        } else if (cursor.moveToNext()) {
-            String itemNextId = cursor.getString(cursor.getColumnIndex("_id"));
-            placeStorage.selectedById(itemNextId);
+            } else if (cursor.moveToNext()) {
+                String itemNextId = cursor.getString(cursor.getColumnIndex("_id"));
+                placeStorage.selectedById(itemNextId);
+            }
         }
+
         refresh();
     }
 
