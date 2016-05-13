@@ -1,0 +1,181 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_to_day"
+    tools:context="com.z_project.weather.ui.Fragments.WeatherToDayFragment">
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:rowCount="1"
+        android:columnCount="2"
+        android:orientation="horizontal"
+        android:layout_gravity="left|center_vertical"
+        >
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="0"
+            android:layout_gravity="center_horizontal|center_vertical"
+            >
+            <GridLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:rowCount="5"
+                android:columnCount="2"
+                android:orientation="horizontal"
+                android:id="@+id/grid_layout_deteils">
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="155dp"
+                    android:gravity="right"
+                    android:textAlignment="gravity"
+                    android:id="@+id/location_label"
+                    android:textColor="@color/colorFontWhite"
+                    android:text="@string/text.current.location"
+                    android:textSize="24sp"
+                    android:layout_row="0"
+                    android:layout_column="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/location_value"
+                    android:textColor="@color/colorFontWhite"
+                    android:scrollHorizontally="true"
+                    android:ellipsize="end"
+                    android:text="Запорожье"
+                    android:textSize="24sp"
+                    android:layout_marginLeft="10dp"
+                    android:maxLines="1"
+                    android:layout_row="0"
+                    android:layout_column="1" />
+
+
+                <TextView
+                    android:layout_width="155dp"
+                    android:gravity="right"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text.current.humidity"
+                    android:id="@+id/humidity_label"
+                    android:textColor="@color/colorFontWhite"
+
+                    android:textSize="24sp"
+                    android:layout_row="1"
+                    android:layout_column="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="85"
+                    android:id="@+id/humidity_value"
+                    android:textColor="@color/colorFontWhite"
+                    android:textSize="24sp"
+                    android:layout_row="1"
+                    android:layout_column="1" />
+
+                <TextView
+                    android:layout_width="155dp"
+                    android:gravity="right"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text.current.pressure"
+                    android:id="@+id/pressure_label"
+                    android:textColor="@color/colorFontWhite"
+                    android:textSize="24sp"
+                    android:layout_row="2"
+                    android:layout_column="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="1000"
+                    android:id="@+id/pressure_value"
+                    android:textColor="@color/colorFontWhite"
+                    android:textSize="24sp"
+                    android:layout_row="2"
+                    android:layout_column="1" />
+
+                <TextView
+                    android:layout_width="155dp"
+                    android:gravity="right"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text.current.wind"
+                    android:id="@+id/wind_label"
+                    android:textColor="@color/colorFontWhite"
+                    android:textSize="24sp"
+                    android:layout_row="3"
+                    android:layout_column="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="1000"
+                    android:id="@+id/wind_value"
+                    android:textColor="@color/colorFontWhite"
+                    android:textSize="24sp"
+                    android:layout_row="3"
+                    android:layout_column="1" />
+
+            </GridLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="1"
+            android:layout_gravity="center_horizontal|center_vertical"
+            >
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/mail_liner_layout"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/temperature_main"
+                    android:textColor="@color/colorFontWhite"
+                    android:text="19"
+                    android:textSize="100sp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="°С"
+                    android:textSize="24sp"
+                    android:textColor="@color/colorFontWhite"
+                    android:id="@+id/textView"
+                    android:layout_marginTop="-27dp"
+
+                    />
+
+
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </GridLayout>
+
+
+
+
+
+
+</FrameLayout>

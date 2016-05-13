@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Weather</string>
+
+
+    <string name="text.current.temp">Temperature:</string>
+    <string name="text.current.pressure">Pressure:</string>
+    <string name="text.current.humidity">Humidity:</string>
+    <string name="text.current.location">Place:</string>
+    <string name="text.current.wind">Wind:</string>
+
+
+    <string name="text.menu.refresh">Refresh</string>
+    <string name="text.menu.select_place">Change Place</string>
+    <string name="text.menu.current_place">Current Location</string>
+    <string name="text.menu.add_place">Add Place</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
