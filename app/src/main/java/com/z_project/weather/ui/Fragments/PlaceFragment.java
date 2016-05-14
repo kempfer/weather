@@ -3,7 +3,9 @@ package com.z_project.weather.ui.Fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -35,17 +38,23 @@ import com.z_project.weather.ui.Adapters.PlaceListAdapter;
 public class PlaceFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PLACE_STORAGE = "place_storage";
+    private static final String ARG_GPS_ENABLE = "gps_enable";
 
     private PlaceStorage placeStorage;
 
     private  final int REQUEST_PLACE_PICKER = 12345;
+
+    private boolean gpsEnable = false;
 
     protected FloatingActionButton btnOpenActivityAddPlace;
 
     protected ListView placeList;
 
     protected PlaceListAdapter placeListAdapter;
+
+    protected PlaceModel currentPlace;
+
+    protected TextView textViewcurrentPlace;
 
 
     public PlaceFragment() {
@@ -58,10 +67,10 @@ public class PlaceFragment extends Fragment {
      *
      * @return A new instance of fragment PlaceFragment.
      */
-    public static PlaceFragment newInstance() {
+    public static PlaceFragment newInstance(boolean gpsEnabled) {
         PlaceFragment fragment = new PlaceFragment();
         Bundle args = new Bundle();
-      //  args.putString(ARG_PLACE_STORAGE, new Gson().toJson(placeStorage));
+        args.putBoolean(ARG_GPS_ENABLE, gpsEnabled);
         fragment.setArguments(args);
         return fragment;
     }
@@ -71,6 +80,12 @@ public class PlaceFragment extends Fragment {
         super.onCreate(savedInstanceState);
         placeStorage = new PlaceStorage(new DBHelper(getActivity(), 1));
 
+        if (placeStorage.findCurrent()  == null) {
+            clickCurrentLocation(false);
+        }
+        if (getArguments() != null) {
+            gpsEnable = getArguments().getBoolean(ARG_GPS_ENABLE);
+        }
     }
 
     @Override
@@ -86,6 +101,14 @@ public class PlaceFragment extends Fragment {
                 openFindPlace();
             }
         });
+        textViewcurrentPlace = (TextView) view.findViewById(R.id.current_place);
+
+        textViewcurrentPlace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickCurrentLocation(true);
+            }
+        });
 
         placeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
@@ -95,7 +118,24 @@ public class PlaceFragment extends Fragment {
         });
         placeListAdapter = getGuideAdapter();
         placeList.setAdapter(placeListAdapter);
+
+
+        if (gpsEnable == false) {
+            TextView textView = (TextView) view.findViewById(R.id.current_place);
+            textView.setText("Current Location: disabled");
+        }
+
+
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (placeStorage.findCurrent()  == null) {
+            clickCurrentLocation(false);
+        }
     }
 
     private void openFindPlace () {
@@ -111,6 +151,12 @@ public class PlaceFragment extends Fragment {
         } catch (GooglePlayServicesNotAvailableException e) {
             // ...
         }
+    }
+
+    public void setCurrentPlace(PlaceModel placeModel) {
+        this.currentPlace = placeModel;
+        TextView textView = (TextView) getView().findViewById(R.id.current_place);
+        textView.setText("Current Location: " + currentPlace.getName());
     }
 
     @Override
@@ -150,7 +196,8 @@ public class PlaceFragment extends Fragment {
                 cursor,
                 columns,
                 to,
-                0);
+                0,
+                this);
         dataAdapter.setDbHelper(placeStorage);
 
         return dataAdapter;
@@ -160,12 +207,32 @@ public class PlaceFragment extends Fragment {
         placeStorage.selectedById(id);
         PlaceModel placeModel = placeStorage.findById(id);
 
-        ((MainActivity)getActivity()).toWeatherToDay(placeModel);
+        ((MainActivity)getActivity()).toWeatherToDay(placeModel, true);
 
         placeListAdapter.refresh();
+        TextView textView = (TextView) getView().findViewById(R.id.current_place);
+        textView.setTextColor(Color.WHITE);
+
 
     }
 
 
+    private void clickCurrentLocation(boolean switchToday) {
+        if (currentPlace !=null) {
+            PlaceModel placeModel = currentPlace;
 
+            ((MainActivity)getActivity()).toWeatherToDay(placeModel, switchToday);
+
+            placeStorage.removeSelectedAll();
+
+            TextView textView = (TextView) getView().findViewById(R.id.current_place);
+            textView.setTextColor(Color.YELLOW);
+            placeListAdapter.refresh();
+        }
+
+    }
+
+    public void onPlaceDelete() {
+        clickCurrentLocation(false);
+    }
 }

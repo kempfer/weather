@@ -109,7 +109,9 @@ public class WeatherToDayFragment extends Fragment {
 
     public void setPlace(PlaceModel place) {
         this.place = place;
-        refresh();
+        if (this.place != null) {
+            refresh();
+        }
     }
 
     /**
@@ -135,7 +137,9 @@ public class WeatherToDayFragment extends Fragment {
         if (weatherModel != null) {
             fillData(weatherModel);
         } else {
-            refresh();
+            if (this.place != null) {
+                refresh();
+            }
         }
 
 
@@ -150,7 +154,6 @@ public class WeatherToDayFragment extends Fragment {
             public void onResponse(Call<Weather> call, Response<Weather> response) {
 
                 if (response.isSuccessful()) {
-                    System.out.println(response.raw().toString());
                     weatherModel = new WeatherCurrentModel(response.body());
 
                     fillData(weatherModel);

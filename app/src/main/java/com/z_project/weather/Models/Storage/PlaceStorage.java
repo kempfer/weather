@@ -36,13 +36,16 @@ public class PlaceStorage {
 
     public PlaceModel findById(long id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        PlaceModel place = null;
         Cursor mCursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_NAME + " WHERE id = ?", new String[]{String.valueOf(id)});
 
         if(mCursor != null) {
             mCursor.moveToFirst();
         }
+        if(mCursor.getCount() > 0) {
+            place = loadDataToPlaceModel(mCursor);
+        }
 
-        PlaceModel place = loadDataToPlaceModel(mCursor);
         mCursor.close();
         db.close();
         return place;
@@ -145,6 +148,10 @@ public class PlaceStorage {
         db.close();
 
         return place;
+    }
+
+    public int getCount() {
+        return fetchAllPlaces().getCount();
     }
 
 

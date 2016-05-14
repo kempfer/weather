@@ -14,17 +14,19 @@ import com.z_project.weather.Models.DBHelper;
 import com.z_project.weather.Models.PlaceModel;
 import com.z_project.weather.Models.Storage.PlaceStorage;
 import com.z_project.weather.R;
+import com.z_project.weather.ui.Fragments.PlaceFragment;
 
-/**
- * Created by zotov on 13.05.2016.
- */
+
 public class PlaceListAdapter  extends SimpleCursorAdapter {
 
     private PlaceStorage placeStorage;
 
+    private PlaceFragment placeFragment;
 
-    public PlaceListAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
+
+    public PlaceListAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags, PlaceFragment placeFragment) {
         super(context, layout, c, from, to, flags);
+        this.placeFragment = placeFragment;
     }
 
     public PlaceStorage getDbHelper() {
@@ -56,25 +58,20 @@ public class PlaceListAdapter  extends SimpleCursorAdapter {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteCity( v, itemId, currentCursor, selected);
+                deletePlace( v, itemId, currentCursor, selected);
             }
         });
     }
 
 
-    private void deleteCity (View v, String cityId, Cursor cursor, int selected) {
-        placeStorage.deletePlaceById(cityId);
-
+    private void deletePlace (View v, String placeId, Cursor cursor, int selected) {
+        placeStorage.deletePlaceById(placeId);
+        String nextSelected = null;
         if(selected == 1) {
-            if(cursor.moveToPrevious()) {
-                String itemPreviousId = cursor.getString(cursor.getColumnIndex("_id"));
-                placeStorage.selectedById(itemPreviousId);
-
-            } else if (cursor.moveToNext()) {
-                String itemNextId = cursor.getString(cursor.getColumnIndex("_id"));
-                placeStorage.selectedById(itemNextId);
-            }
+            placeFragment.onPlaceDelete();
         }
+
+
 
         refresh();
     }

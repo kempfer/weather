@@ -1,6 +1,5 @@
 package com.z_project.weather.ui.Activities;
 
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,14 +7,17 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 
+
 import com.z_project.weather.Models.DBHelper;
 import com.z_project.weather.Models.PlaceModel;
 import com.z_project.weather.Models.Storage.PlaceStorage;
 import com.z_project.weather.R;
 import com.z_project.weather.ui.Fragments.PlaceFragment;
 import com.z_project.weather.ui.Fragments.WeatherToDayFragment;
+import com.z_project.weather.utils.GPSLocation;
 
-import java.util.ArrayList;
+
+
 
 public class MainActivity extends BaseActivity {
 
@@ -28,6 +30,9 @@ public class MainActivity extends BaseActivity {
 
     protected PlaceModel placeModel;
 
+    protected GPSLocation gpsLocation;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,13 +40,15 @@ public class MainActivity extends BaseActivity {
         pager = (ViewPager) findViewById(R.id.pager);
 
         placeModel = (new PlaceStorage(new DBHelper(this, 1))).findCurrent();
-        if (placeModel == null) {
-            placeModel = new PlaceModel(0, 47.8556673, 35.1053143, "Запорожье", "", "");
-        }
 
         pagerAdapter = new PageFragmentPagerAdapter(getSupportFragmentManager());
         pager.setAdapter(pagerAdapter);
-
+        if(checkPermission.canAccessLocation()) {
+            gpsLocation = new GPSLocation(this);
+        }
+        if(placeModel == null) {
+            pager.setCurrentItem(1);
+        }
 
     }
 
@@ -59,7 +66,8 @@ public class MainActivity extends BaseActivity {
                     weatherToDayFragment.setPlace(placeModel);
                     return weatherToDayFragment;
                 case 1:
-                    return PlaceFragment.newInstance();
+                    boolean gpsEnabled = (gpsLocation != null && gpsLocation.checkServices());
+                    return PlaceFragment.newInstance(gpsEnabled);
                 default:
                     return null;
             }
@@ -72,13 +80,28 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    public void toWeatherToDay(PlaceModel placeModel) {
+    public void toWeatherToDay(PlaceModel placeModel, boolean switchToday) {
 
         this.placeModel = placeModel;
-        pager.setCurrentItem(0);
-        WeatherToDayFragment weatherToDayFragment = (WeatherToDayFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + pager.getCurrentItem());
+        if (switchToday) {
+            pager.setCurrentItem(0);
+        }
+        WeatherToDayFragment weatherToDayFragment = (WeatherToDayFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":0");
         weatherToDayFragment.setPlace(placeModel);
-
-
     }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    public void onChangeLocation(PlaceModel placeModel) {
+        if(placeModel !=null) {
+            PlaceFragment placeFragment  = (PlaceFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":1" );
+            placeFragment.setCurrentPlace(placeModel);
+        }
+    }
+
 }

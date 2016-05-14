@@ -9,7 +9,7 @@ import com.z_project.weather.utils.CheckPermission;
 
 public class BaseActivity extends AppCompatActivity {
 
-    private CheckPermission checkPermission;
+    protected CheckPermission checkPermission;
 
     public BaseActivity() {
         super();
