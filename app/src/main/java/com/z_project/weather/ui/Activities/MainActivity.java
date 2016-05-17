@@ -39,7 +39,10 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         pager = (ViewPager) findViewById(R.id.pager);
 
-        placeModel = (new PlaceStorage(new DBHelper(this, 1))).findCurrent();
+        placeModel = (new PlaceStorage(DBHelper.getInstance(this, 1))).findCurrent();
+        if (placeModel == null) {
+            placeModel = new PlaceModel(0, 47.8556673, 35.1053143, "Запорожье", "", "");
+        }
 
         pagerAdapter = new PageFragmentPagerAdapter(getSupportFragmentManager());
         pager.setAdapter(pagerAdapter);

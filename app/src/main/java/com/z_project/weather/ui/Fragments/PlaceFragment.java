@@ -78,7 +78,7 @@ public class PlaceFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        placeStorage = new PlaceStorage(new DBHelper(getActivity(), 1));
+        placeStorage = new PlaceStorage(DBHelper.getInstance(getActivity(), 1));
 
         if (placeStorage.findCurrent()  == null) {
             clickCurrentLocation(false);

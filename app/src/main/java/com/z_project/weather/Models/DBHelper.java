@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 
+    private static volatile DBHelper instance;
+
     public static final String TABLE_NAME = "place";
 
     public static final String COLUMN_NAME = "name";
@@ -41,7 +43,19 @@ public class DBHelper extends SQLiteOpenHelper {
 
     Context mContext;
 
-    public DBHelper(Context context, int dbVer){
+    public static DBHelper getInstance (Context context, int dbVer) {
+        if(instance == null) {
+            synchronized (DBHelper.class) {
+                if(instance == null) {
+                    instance = new DBHelper(context, dbVer);
+                }
+            }
+        }
+
+        return instance;
+    }
+
+    private DBHelper(Context context, int dbVer){
         super(context, DB_NAME, null, dbVer);
         mContext = context;
     }
