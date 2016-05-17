@@ -17,6 +17,8 @@ import com.z_project.weather.Models.WeatherCurrentModel;
 import com.z_project.weather.network.openweathermap.Weather;
 import com.z_project.weather.network.openweathermap.WeatherApi;
 
+import org.w3c.dom.Text;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -53,6 +55,8 @@ public class WeatherToDayFragment extends Fragment {
     protected TextView textWind;
 
     protected TextView textLocation;
+
+    protected TextView textCurrentWeacher;
 
     public WeatherToDayFragment() {
         // Required empty public constructor
@@ -177,12 +181,13 @@ public class WeatherToDayFragment extends Fragment {
         String wind = Double.valueOf(weatherModel.getWind()).toString() + " м/с";
         String pressure = Double.valueOf(weatherModel.getPressure()).toString() + " hpa";
         String humidity = Double.valueOf(weatherModel.getHumidity()).toString() + " %";
-        String temperature = Integer.valueOf(weatherModel.getTempCelsius()).toString();
+        String temperature = Integer.valueOf(weatherModel.getTempCelsius()).toString() + "°";
         textWind.setText(wind);
         textPressure.setText(pressure);
         textTemperatureMain.setText(temperature);
         textHumidity.setText(humidity);
         textLocation.setText(place.getName());
+        textCurrentWeacher.setText(weatherModel.getDescription());
     }
 
     private void findViewElement() {
@@ -192,5 +197,7 @@ public class WeatherToDayFragment extends Fragment {
         textTemperatureMain = (TextView) view.findViewById(R.id.temperature_main);
         textWind = (TextView) view.findViewById(R.id.wind_value);
         textLocation = (TextView) view.findViewById(R.id.location_value);
+        textCurrentWeacher = (TextView) view.findViewById(R.id.current_weacher);
+
     }
 }

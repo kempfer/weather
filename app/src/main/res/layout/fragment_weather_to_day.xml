@@ -15,28 +15,16 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true">
 
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/temperature_main"
             android:textColor="@color/colorFontWhite"
             android:text="19"
-            android:textSize="100sp"
+            android:textSize="85sp"
             android:layout_gravity="center_vertical"
             />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="°С"
-            android:textSize="24sp"
-            android:textColor="@color/colorFontWhite"
-            android:id="@+id/textView"
-            android:layout_marginTop="-27dp"
-
-            />
-
-
 
 
     </LinearLayout>
@@ -44,10 +32,28 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dp"
+        >
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:id="@+id/current_weacher"
+            android:textColor="@color/colorFontWhite"
+            android:textSize="24sp"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignTop="@+id/mail_liner_layout"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="272dp"
+        android:layout_marginTop="250dp"
         android:id="@+id/lin_layout_deteils">
 
         <GridLayout
@@ -60,6 +66,8 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true">
 
+
+
             <TextView
                 android:layout_height="wrap_content"
                 android:layout_width="155dp"
@@ -69,8 +77,10 @@
                 android:textColor="@color/colorFontWhite"
                 android:text="@string/text.current.location"
                 android:textSize="24sp"
-                android:layout_row="0"
+                android:layout_row="1"
                 android:layout_column="0" />
+
+
 
             <TextView
                 android:layout_width="wrap_content"
@@ -83,7 +93,7 @@
                 android:textSize="24sp"
                 android:layout_marginLeft="10dp"
                 android:maxLines="1"
-                android:layout_row="0"
+                android:layout_row="1"
                 android:layout_column="1" />
 
 
@@ -96,7 +106,7 @@
                 android:textColor="@color/colorFontWhite"
 
                 android:textSize="24sp"
-                android:layout_row="1"
+                android:layout_row="2"
                 android:layout_column="0" />
 
             <TextView
@@ -107,7 +117,7 @@
                 android:id="@+id/humidity_value"
                 android:textColor="@color/colorFontWhite"
                 android:textSize="24sp"
-                android:layout_row="1"
+                android:layout_row="2"
                 android:layout_column="1" />
 
             <TextView
@@ -118,7 +128,7 @@
                 android:id="@+id/pressure_label"
                 android:textColor="@color/colorFontWhite"
                 android:textSize="24sp"
-                android:layout_row="2"
+                android:layout_row="3"
                 android:layout_column="0" />
 
             <TextView
@@ -129,7 +139,7 @@
                 android:id="@+id/pressure_value"
                 android:textColor="@color/colorFontWhite"
                 android:textSize="24sp"
-                android:layout_row="2"
+                android:layout_row="3"
                 android:layout_column="1" />
 
             <TextView
@@ -140,7 +150,7 @@
                 android:id="@+id/wind_label"
                 android:textColor="@color/colorFontWhite"
                 android:textSize="24sp"
-                android:layout_row="3"
+                android:layout_row="4"
                 android:layout_column="0" />
 
             <TextView
@@ -151,7 +161,7 @@
                 android:id="@+id/wind_value"
                 android:textColor="@color/colorFontWhite"
                 android:textSize="24sp"
-                android:layout_row="3"
+                android:layout_row="4"
                 android:layout_column="1" />
 
         </GridLayout>

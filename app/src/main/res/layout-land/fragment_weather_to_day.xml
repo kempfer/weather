@@ -11,7 +11,7 @@
         android:rowCount="1"
         android:columnCount="2"
         android:orientation="horizontal"
-        android:layout_gravity="left|center_vertical"
+        android:layout_gravity="right|center_vertical"
         >
 
         <LinearLayout
@@ -131,13 +131,13 @@
             android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:columnCount="1"
             android:layout_gravity="center_horizontal|center_vertical"
             >
 
 
-            <LinearLayout
-                android:orientation="horizontal"
+            <GridLayout
+                android:rowCount="2"
+                android:columnCount="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/mail_liner_layout"
@@ -149,33 +149,33 @@
                     android:id="@+id/temperature_main"
                     android:textColor="@color/colorFontWhite"
                     android:text="19"
-                    android:textSize="100sp"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="°С"
-                    android:textSize="24sp"
-                    android:textColor="@color/colorFontWhite"
-                    android:id="@+id/textView"
-                    android:layout_marginTop="-27dp"
-
+                    android:textSize="85sp"
+                    android:layout_row="0"
+                    android:layout_column="0"
                     />
 
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_row="1"
+                        android:layout_column="0"
+                        android:textSize="24sp"
+                        android:textColor="@color/colorFontWhite"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:id="@+id/current_weacher"
+                        />
 
 
-            </LinearLayout>
+
+            </GridLayout>
+
 
 
         </LinearLayout>
 
     </GridLayout>
-
-
-
-
 
 
 </FrameLayout>

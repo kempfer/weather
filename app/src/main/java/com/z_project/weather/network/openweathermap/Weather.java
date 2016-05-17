@@ -2,6 +2,8 @@ package com.z_project.weather.network.openweathermap;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by zotov on 12.05.2016.
  */
@@ -21,8 +23,8 @@ public class Weather {
     @SerializedName("wind")
     private Wind wind;
 
-
-    private WeatherData weatherData;
+    @SerializedName("weather")
+    private List<WeatherData> weatherData;
 
     public Weather() {
     }
@@ -46,7 +48,7 @@ public class Weather {
     }
 
     public WeatherData getWeatherData () {
-        return   new WeatherData("asf", "asf");
+        return   weatherData.get(0);
     }
 
     public class Main {
