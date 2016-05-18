@@ -23,7 +23,7 @@ public class PlaceStorage {
 
     public Cursor fetchAllPlaces() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor mCursor = db.rawQuery("SELECT id as _id, * FROM " + DBHelper.TABLE_NAME , null);
+        Cursor mCursor = db.rawQuery("SELECT id as _id, * FROM " + DBHelper.TABLE_NAME_PLACES , null);
 
         if (mCursor != null) {
             mCursor.moveToFirst();
@@ -37,7 +37,7 @@ public class PlaceStorage {
     public PlaceModel findById(long id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         PlaceModel place = null;
-        Cursor mCursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_NAME + " WHERE id = ?", new String[]{String.valueOf(id)});
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_NAME_PLACES + " WHERE id = ?", new String[]{String.valueOf(id)});
 
         if(mCursor != null) {
             mCursor.moveToFirst();
@@ -64,7 +64,7 @@ public class PlaceStorage {
             initialValues.put(DBHelper.EXTERNAL_ID, externalId);
             initialValues.put(DBHelper.COLUMN_CURRENT, 0);
 
-            long id =  db.insert(DBHelper.TABLE_NAME, null, initialValues);
+            long id =  db.insert(DBHelper.TABLE_NAME_PLACES, null, initialValues);
             db.close();
             return id;
         } else {
@@ -74,7 +74,7 @@ public class PlaceStorage {
 
     public int deletePlaceById (String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        int result = db.delete(DBHelper.TABLE_NAME, "id = ?", new String[]{id});
+        int result = db.delete(DBHelper.TABLE_NAME_PLACES, "id = ?", new String[]{id});
         db.close();
 
         return result;
@@ -82,7 +82,7 @@ public class PlaceStorage {
 
     public PlaceModel findByExternalId(String externalId) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor mCursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_NAME + " WHERE external_id = ?", new String[]{externalId});
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_NAME_PLACES + " WHERE external_id = ?", new String[]{externalId});
 
         PlaceModel place = null;
 
@@ -114,7 +114,7 @@ public class PlaceStorage {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.COLUMN_CURRENT, 0);
-        db.update(DBHelper.TABLE_NAME, cv, "", new String[]{});
+        db.update(DBHelper.TABLE_NAME_PLACES, cv, "", new String[]{});
         db.close();
     }
 
@@ -127,7 +127,7 @@ public class PlaceStorage {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.COLUMN_CURRENT, 1);
-        int result = db.update(DBHelper.TABLE_NAME, cv, "id = ?", new String[]{id});
+        int result = db.update(DBHelper.TABLE_NAME_PLACES, cv, "id = ?", new String[]{id});
         db.close();
 
         return result;
@@ -135,7 +135,7 @@ public class PlaceStorage {
 
     public PlaceModel findCurrent(){
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor mCursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_NAME + " WHERE " + DBHelper.COLUMN_CURRENT + " = ? LIMIT 1", new String[]{"1"});
+        Cursor mCursor = db.rawQuery("SELECT * FROM " + DBHelper.TABLE_NAME_PLACES + " WHERE " + DBHelper.COLUMN_CURRENT + " = ? LIMIT 1", new String[]{"1"});
 
         PlaceModel place = null;
 

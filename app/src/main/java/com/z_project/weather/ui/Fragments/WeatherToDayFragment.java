@@ -2,6 +2,7 @@ package com.z_project.weather.ui.Fragments;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.z_project.weather.Models.DBHelper;
+import com.z_project.weather.Models.Storage.WeatherStorage;
 import com.z_project.weather.R;
 
 import com.z_project.weather.Models.PlaceModel;
@@ -18,6 +21,8 @@ import com.z_project.weather.network.openweathermap.Weather;
 import com.z_project.weather.network.openweathermap.WeatherApi;
 
 import org.w3c.dom.Text;
+
+import java.sql.Timestamp;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,11 +44,11 @@ public class WeatherToDayFragment extends Fragment {
 
     private PlaceModel place;
 
+    private View view;
+
     private WeatherApi weatherApi;
 
-    WeatherCurrentModel weatherModel;
-
-    private OnFragmentInteractionListener mListener;
+    private WeatherCurrentModel weatherModel;
 
 
     protected TextView textHumidity;
@@ -92,19 +97,22 @@ public class WeatherToDayFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_weather_to_day, container, false);
+        view = inflater.inflate(R.layout.fragment_weather_to_day, container, false);
 
 
         init();
         return  view;
     }
 
-
+    @Nullable
+    @Override
+    public View getView() {
+        return super.getView() != null ? super.getView() : view;
+    }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     public PlaceModel getPlace() {
@@ -113,7 +121,7 @@ public class WeatherToDayFragment extends Fragment {
 
     public void setPlace(PlaceModel place) {
         this.place = place;
-        if (this.place != null) {
+        if (this.place != null && getView() != null) {
             refresh();
         }
     }
@@ -150,6 +158,23 @@ public class WeatherToDayFragment extends Fragment {
     }
 
     private void refresh () {
+        final WeatherStorage weatherStorage = new WeatherStorage(DBHelper.getInstance(getActivity(), 1));
+        WeatherCurrentModel weatherCurrentModel = weatherStorage.findByPlaceId(place.getId());
+
+        if(weatherCurrentModel == null) {
+            refreshByNetwork();
+        } else {
+            java.util.Date date= new java.util.Date();
+            long currentTime = (new Timestamp(date.getTime())).getTime();
+            System.out.println(currentTime);
+            System.out.println(weatherCurrentModel.getLastUpdate());
+            fillData(weatherCurrentModel);
+        }
+
+    }
+
+    private void refreshByNetwork () {
+        final WeatherStorage weatherStorage = new WeatherStorage(DBHelper.getInstance(getActivity(), 1));
         if(weatherApi == null) {
             weatherApi = new WeatherApi();
         }
@@ -159,7 +184,7 @@ public class WeatherToDayFragment extends Fragment {
 
                 if (response.isSuccessful()) {
                     weatherModel = new WeatherCurrentModel(response.body());
-
+                    weatherStorage.save(place.getId(), weatherModel);
                     fillData(weatherModel);
                 } else {
                     // error response, no access to resource?

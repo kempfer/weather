@@ -1,9 +1,12 @@
 package com.z_project.weather.Models;
 
 import  com.z_project.weather.network.openweathermap.Weather;
+
+import java.sql.Timestamp;
+
 public class WeatherCurrentModel {
 
-    private double kel = 272.15;
+    final private  double kel = 272.15;
 
     private double temp;
 
@@ -13,9 +16,22 @@ public class WeatherCurrentModel {
 
     private double wind;
 
+    private long lastUpdate;
+
     private String description;
 
     private String iconCode;
+
+    public WeatherCurrentModel(double temp, double pressure, double humidity, double wind, String description, String iconCode, long lastUpdate) {
+        this.temp = temp;
+        this.pressure = pressure;
+        this.humidity = humidity;
+        this.wind = wind;
+        this.description = description;
+        this.iconCode = iconCode;
+        this.lastUpdate = lastUpdate;
+
+    }
 
     public WeatherCurrentModel(double temp, double pressure, double humidity, double wind, String description, String iconCode) {
         this.temp = temp;
@@ -24,6 +40,8 @@ public class WeatherCurrentModel {
         this.wind = wind;
         this.description = description;
         this.iconCode = iconCode;
+        java.util.Date date= new java.util.Date();
+        this.lastUpdate = (new Timestamp(date.getTime())).getTime();
     }
 
     public WeatherCurrentModel(Weather weather) {
@@ -33,6 +51,8 @@ public class WeatherCurrentModel {
         this.wind = weather.getWind().getSpeed();
         this.description = weather.getWeatherData().getDescription();
         this.iconCode = weather.getWeatherData().getIcon();
+        java.util.Date date= new java.util.Date();
+        this.lastUpdate = (new Timestamp(date.getTime())).getTime();
     }
 
     public double getTemp() {
@@ -58,5 +78,13 @@ public class WeatherCurrentModel {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getIconCode() {
+        return iconCode;
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
     }
 }

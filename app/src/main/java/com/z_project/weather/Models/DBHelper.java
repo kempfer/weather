@@ -11,7 +11,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static volatile DBHelper instance;
 
-    public static final String TABLE_NAME = "place";
+    public static final String TABLE_NAME_PLACES = "places";
+
+    public static final String TABLE_NAME_WEATHER_PLACES = "place_weather";
 
     public static final String COLUMN_NAME = "name";
 
@@ -25,9 +27,19 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String COLUMN_CURRENT = "current";
 
+    public static final String WEATHER_PLACES_COLUMN_PLACE_ID = "place_id";
+
+    public static final String WEATHER_PLACES_COLUMN_TEMPERATURE = "temperature";
+    public static final String WEATHER_PLACES_COLUMN_PRESSURE = "pressure";
+    public static final String WEATHER_PLACES_COLUMN_HUMIDITY = "humidity";
+    public static final String WEATHER_PLACES_COLUMN_WIND = "wind";
+    public static final String WEATHER_PLACES_COLUMN_DESCRIPTION = "description";
+    public static final String WEATHER_PLACES_COLUMN_ICONE_CODE = "icon_code";
+    public static final String WEATHER_PLACES_COLUMN_CREATED_AT = "created_at";
 
 
-    final String DATABASE_CREATE = "CREATE TABLE " + TABLE_NAME + " (\n" +
+
+    final private String DATABASE_CREATE_TABLE_PLACES = "CREATE TABLE " + TABLE_NAME_PLACES + " (\n" +
             "    id  INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
             "    " + COLUMN_NAME + " TEXT,\n" +
             "    " + COLUMN_COUNTRY + " TEXT,\n" +
@@ -35,6 +47,18 @@ public class DBHelper extends SQLiteOpenHelper {
             "    " + COLUMN_LATITUDE + " REAL,\n" +
             "    " + EXTERNAL_ID + " TEXT,\n" +
             "    " + COLUMN_CURRENT + " INTEGER \n" +
+            ");";
+
+    final private String DATABASE_CREATE_TABLE_WEATHER_PLACES = "CREATE TABLE " + TABLE_NAME_WEATHER_PLACES + " (\n" +
+            "    id  INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+            "    " + WEATHER_PLACES_COLUMN_PLACE_ID + " INTEGER,\n" +
+            "    " + WEATHER_PLACES_COLUMN_TEMPERATURE + " REAL,\n" +
+            "    " + WEATHER_PLACES_COLUMN_PRESSURE + " REAL,\n" +
+            "    " + WEATHER_PLACES_COLUMN_HUMIDITY + " REAL,\n" +
+            "    " + WEATHER_PLACES_COLUMN_WIND + " REAL,\n" +
+            "    " + WEATHER_PLACES_COLUMN_DESCRIPTION + " TEXT, \n" +
+            "    " + WEATHER_PLACES_COLUMN_ICONE_CODE + " TEXT, \n" +
+            "    " + WEATHER_PLACES_COLUMN_CREATED_AT + " INTEGER \n" +
             ");";
 
     private static final String DB_NAME = "weather.db";
@@ -68,12 +92,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(DATABASE_CREATE);
+        db.execSQL(DATABASE_CREATE_TABLE_PLACES);
+        db.execSQL(DATABASE_CREATE_TABLE_WEATHER_PLACES);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_CREATE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_PLACES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_PLACES);
         onCreate(db);
     }
 }
