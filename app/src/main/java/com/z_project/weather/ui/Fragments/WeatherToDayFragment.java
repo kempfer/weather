@@ -1,9 +1,12 @@
 package com.z_project.weather.ui.Fragments;
 
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -160,14 +163,32 @@ public class WeatherToDayFragment extends Fragment {
     private void refresh () {
         final WeatherStorage weatherStorage = new WeatherStorage(DBHelper.getInstance(getActivity(), 1));
         WeatherCurrentModel weatherCurrentModel = weatherStorage.findByPlaceId(place.getId());
-
-        if(weatherCurrentModel == null) {
-            refreshByNetwork();
-        } else {
+        boolean networkUpdate = true;
+        if(weatherCurrentModel != null) {
             java.util.Date date= new java.util.Date();
             long currentTime = (new Timestamp(date.getTime())).getTime();
-            System.out.println(currentTime);
-            System.out.println(weatherCurrentModel.getLastUpdate());
+            long updateTime = weatherCurrentModel.getLastUpdate();
+            long updateAfterTime = ((currentTime - updateTime)/1000)/60;
+
+            int cacheWeatherData = 0;
+            try {
+                ApplicationInfo ai = getActivity().getPackageManager().getApplicationInfo(getActivity().getPackageName(), PackageManager.GET_META_DATA);
+                Bundle bundle = ai.metaData;
+                cacheWeatherData = bundle.getInt("cache_weather_data");
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Log.d("WTimestamp ", String.valueOf(cacheWeatherData));
+
+            if(updateAfterTime < cacheWeatherData) {
+                networkUpdate = false;
+            }
+        }
+
+        if(networkUpdate) {
+            refreshByNetwork();
+        } else {
             fillData(weatherCurrentModel);
         }
 

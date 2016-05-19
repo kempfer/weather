@@ -17,8 +17,11 @@ public class PlaceStorage {
 
     private  SQLiteDatabase db;
 
+    private WeatherStorage weatherStorage;
+
     public PlaceStorage(DBHelper dbHelper) {
         this.dbHelper = dbHelper;
+        weatherStorage = new WeatherStorage(dbHelper);
     }
 
     public Cursor fetchAllPlaces() {
@@ -75,6 +78,9 @@ public class PlaceStorage {
     public int deletePlaceById (String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         int result = db.delete(DBHelper.TABLE_NAME_PLACES, "id = ?", new String[]{id});
+        if(result > 0) {
+            weatherStorage.deleteByPlaceId(id);
+        }
         db.close();
 
         return result;

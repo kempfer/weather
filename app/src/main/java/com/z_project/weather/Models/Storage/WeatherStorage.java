@@ -3,6 +3,7 @@ package com.z_project.weather.Models.Storage;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.z_project.weather.Models.DBHelper;
 import com.z_project.weather.Models.WeatherCurrentModel;
@@ -56,6 +57,7 @@ public class WeatherStorage {
         initialValues.put(DBHelper.WEATHER_PLACES_COLUMN_ICONE_CODE, weatherModel.getIconCode());
         initialValues.put(DBHelper.WEATHER_PLACES_COLUMN_CREATED_AT, (new Timestamp(date.getTime())).getTime());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Log.d("WTimestamp save", String.valueOf((new Timestamp(date.getTime())).getTime()));
         long id =  db.insert(DBHelper.TABLE_NAME_WEATHER_PLACES, null, initialValues);
         db.close();
 
@@ -79,6 +81,7 @@ public class WeatherStorage {
     }
 
     private WeatherCurrentModel loadDataToWeatherModel (Cursor cursor) {
+
         return new WeatherCurrentModel(
                 cursor.getDouble(cursor.getColumnIndexOrThrow(DBHelper.WEATHER_PLACES_COLUMN_TEMPERATURE)),
                 cursor.getDouble(cursor.getColumnIndexOrThrow(DBHelper.WEATHER_PLACES_COLUMN_PRESSURE)),
@@ -86,7 +89,7 @@ public class WeatherStorage {
                 cursor.getDouble(cursor.getColumnIndexOrThrow(DBHelper.WEATHER_PLACES_COLUMN_WIND)),
                 cursor.getString(cursor.getColumnIndexOrThrow(DBHelper.WEATHER_PLACES_COLUMN_DESCRIPTION)),
                 cursor.getString(cursor.getColumnIndexOrThrow(DBHelper.WEATHER_PLACES_COLUMN_ICONE_CODE)),
-                cursor.getLong(cursor.getColumnIndexOrThrow(DBHelper.WEATHER_PLACES_COLUMN_TEMPERATURE))
+                cursor.getLong(cursor.getColumnIndexOrThrow(DBHelper.WEATHER_PLACES_COLUMN_CREATED_AT))
         );
     }
 
