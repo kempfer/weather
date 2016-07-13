@@ -1,4 +1,4 @@
-package com.z_project.weather;
+package com.z_project.weather.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,6 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.z_project.weather.Place;
+import com.z_project.weather.PlaceLab;
+import com.z_project.weather.R;
 
 import java.util.List;
 

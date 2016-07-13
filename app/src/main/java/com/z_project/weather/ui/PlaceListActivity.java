@@ -1,4 +1,4 @@
-package com.z_project.weather;
+package com.z_project.weather.ui;
 
 import android.support.v4.app.Fragment;
 
