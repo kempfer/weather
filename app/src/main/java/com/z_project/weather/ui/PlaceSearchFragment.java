@@ -2,8 +2,6 @@ package com.z_project.weather.ui;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.HandlerThread;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,7 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.z_project.weather.HttpGooglePlace;
+import com.z_project.weather.http.HttpGooglePlace;
 import com.z_project.weather.Place;
 import com.z_project.weather.PlaceLab;
 import com.z_project.weather.R;

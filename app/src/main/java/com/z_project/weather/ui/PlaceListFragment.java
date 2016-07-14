@@ -1,5 +1,6 @@
 package com.z_project.weather.ui;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import com.z_project.weather.Place;
 import com.z_project.weather.PlaceLab;
 import com.z_project.weather.R;
+import com.z_project.weather.http.HttpGooglePlace;
+import com.z_project.weather.http.OpenWeatherMap;
 
 import java.util.List;
 
@@ -54,8 +57,25 @@ public class PlaceListFragment extends Fragment {
         return  view;
     }
 
+    private class WeatcherTask extends AsyncTask<Void,Void,Void> {
 
-    private class PlaceHolder extends RecyclerView.ViewHolder {
+        private Place mPlace;
+
+        public WeatcherTask(Place place) {
+            mPlace = place;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            new OpenWeatherMap().getToDay(mPlace.getLatitude(), mPlace.getLongitude());
+
+            return null;
+
+        }
+    }
+
+
+    private class PlaceHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private Place mPlace;
 
@@ -64,12 +84,17 @@ public class PlaceListFragment extends Fragment {
         public PlaceHolder(View itemView) {
             super(itemView);
             mNameTextView = (TextView) itemView.findViewById(R.id.list_item_place_name);
-
+            itemView.setOnClickListener(this);
         }
 
         private void bindPlace (Place place) {
             mPlace = place;
             mNameTextView.setText(mPlace.getDescription());
+        }
+
+        @Override
+        public void onClick(View v) {
+            new WeatcherTask(mPlace).execute();
         }
     }
 

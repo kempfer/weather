@@ -1,4 +1,4 @@
-package com.z_project.weather;
+package com.z_project.weather.http;
 
 import android.location.Location;
 import android.net.Uri;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class HttpGooglePlace {
+public class HttpGooglePlace extends Http {
 
     private static final String TAG = "HttpGooglePlace";
 
@@ -62,29 +62,6 @@ public class HttpGooglePlace {
 
     }
 
-    private String getUrlString(String urlSpec) throws IOException {
-
-        URL url = new URL(urlSpec);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            InputStream inputStream = connection.getInputStream();
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException(connection.getResponseCode() + " : with " + urlSpec);
-            }
-            int bytesRed = 0;
-            byte buffer[] = new byte[1024];
-            while ((bytesRed = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, bytesRed);
-            }
-            outputStream.close();
-            return new String(outputStream.toByteArray());
-
-        } finally {
-            connection.disconnect();
-        }
-    }
 
     private List<Place> parsePlaces (String jsonBody) {
         List<Place> places = new ArrayList<>();
