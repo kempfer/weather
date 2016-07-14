@@ -22,10 +22,12 @@ public class PlaceCursorWrapper extends CursorWrapper {
         Double latitude = getDouble(getColumnIndex(PlaceTable.Cols.LATITUDE));
         Double longitude = getDouble(getColumnIndex(PlaceTable.Cols.LONGITUDE));
         String externalId = getString(getColumnIndex(PlaceTable.Cols.EXTERNAL_ID));
+        String region = getString(getColumnIndex(PlaceTable.Cols.REGION));
 
         Place place = new Place(UUID.fromString(uuidString));
         place.setName(name);
         place.setCountry(country);
+        place.setRegion(region);
         place.setExternalId(externalId);
         place.setLatitude(latitude);
         place.setLongitude(longitude);

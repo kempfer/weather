@@ -10,6 +10,8 @@ public class Place {
 
     private String mCountry;
 
+    private String mRegion;
+
     private double mLongitude;
 
     private double mLatitude;
@@ -66,5 +68,24 @@ public class Place {
 
     public void setExternalId(String externalId) {
         mExternalId = externalId;
+    }
+
+    public String getRegion() {
+        return mRegion;
+    }
+
+    public void setRegion(String region) {
+        mRegion = region;
+    }
+
+    public String getDescription () {
+        String description = getName();
+        if(getRegion() != null && !getRegion().isEmpty()) {
+            description += ", " + getRegion();
+        }
+        description += ", " + getCountry();
+
+        return description;
+
     }
 }

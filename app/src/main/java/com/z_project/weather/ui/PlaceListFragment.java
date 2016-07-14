@@ -69,7 +69,7 @@ public class PlaceListFragment extends Fragment {
 
         private void bindPlace (Place place) {
             mPlace = place;
-            mNameTextView.setText(mPlace.getName());
+            mNameTextView.setText(mPlace.getDescription());
         }
     }
 

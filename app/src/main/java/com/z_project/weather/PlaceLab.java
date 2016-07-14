@@ -118,6 +118,7 @@ public class PlaceLab {
         contentValues.put(PlaceTable.Cols.EXTERNAL_ID, place.getExternalId());
         contentValues.put(PlaceTable.Cols.LATITUDE, place.getLatitude());
         contentValues.put(PlaceTable.Cols.LONGITUDE, place.getLongitude());
+        contentValues.put(PlaceTable.Cols.REGION, place.getRegion());
 
         return contentValues;
     }

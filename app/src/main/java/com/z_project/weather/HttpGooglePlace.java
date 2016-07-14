@@ -100,6 +100,7 @@ public class HttpGooglePlace {
                 JSONArray termJsonArray =  predictionJsonObject.getJSONArray("terms");
                 place.setCity(termJsonArray);
                 place.setCountry(termJsonArray);
+                place.setRegion(termJsonArray);
                 places.add(place);
 
             }
@@ -142,6 +143,8 @@ public class HttpGooglePlace {
         private String mCity;
 
         private String mCountry;
+
+        private String mRegion;
 
 
         public String getPlaceId() {
@@ -194,6 +197,27 @@ public class HttpGooglePlace {
                     termJsonObject = terms.getJSONObject(1);
                 }
                 mCountry = termJsonObject.getString("value");
+
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to fetch terms", e);
+            }
+        }
+
+        public String getRegion() {
+            return mRegion;
+        }
+
+        public void setRegion(String region) {
+            mRegion = region;
+        }
+
+        public void setRegion(JSONArray terms) {
+            try {
+                JSONObject termJsonObject;
+                if(terms.length() == 3) {
+                    termJsonObject = terms.getJSONObject(1);
+                    mRegion = termJsonObject.getString("value");
+                }
 
             } catch (JSONException e) {
                 Log.e(TAG, "Failed to fetch terms", e);

@@ -16,6 +16,8 @@ public class WeatherDbSchema {
 
             public static final String NAME = "name";
 
+            public static final String REGION = "region";
+
             public static final String COUNTRY = "country";
 
             public static final String LONGITUDE = "longitude";

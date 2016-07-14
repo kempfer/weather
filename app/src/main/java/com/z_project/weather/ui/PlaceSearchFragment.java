@@ -2,25 +2,31 @@ package com.z_project.weather.ui;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.z_project.weather.HttpGooglePlace;
+import com.z_project.weather.Place;
+import com.z_project.weather.PlaceLab;
 import com.z_project.weather.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class PlaceSearchFragment extends Fragment {
 
@@ -30,6 +36,15 @@ public class PlaceSearchFragment extends Fragment {
 
     private List<HttpGooglePlace.Place> mPlaces = new ArrayList<>();
 
+    private EditText mSearchEditText;
+
+    private ProgressBar mProgressBar;
+
+    private ImageButton mBackButton;
+
+    private PlaceLab  mPlaceLab;
+
+
     public static PlaceSearchFragment newInstance() {
         return new PlaceSearchFragment();
     }
@@ -38,7 +53,7 @@ public class PlaceSearchFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        setHasOptionsMenu(true);
+        mPlaceLab = PlaceLab.getInstance(getActivity());
     }
 
     @Nullable
@@ -49,35 +64,39 @@ public class PlaceSearchFragment extends Fragment {
         mPlaceRecyclerView = (RecyclerView) view.findViewById(R.id.place_search_recycler_view);
         mPlaceRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        return view;
-    }
+        mSearchEditText = (EditText) view.findViewById(R.id.place_search_edit_text);
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.fragment_place_search, menu);
-        MenuItem searchItem = menu.findItem(R.id.menu_item_search);
-        final SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setFocusable(true);
-        searchView.setFocusable(true);
-        searchView.setIconified(false);
-        searchView.requestFocusFromTouch();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+
+        mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+
+        mSearchEditText.addTextChangedListener(new TextWatcher() {
+
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
-                if(newText.length() > 2) {
-                    new PlaceSearchTask(newText).execute();
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length() > 2) {
+                    new PlaceSearchTask(s.toString()).execute();
                 }
-
-                return true;
             }
         });
 
+        mBackButton = (ImageButton) view.findViewById(R.id.button_back);
+
+        mBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+            }
+        });
+
+        return view;
     }
 
     private void setupAdapter () {
@@ -86,11 +105,17 @@ public class PlaceSearchFragment extends Fragment {
         }
     }
 
+    private void addPlace (Place place) {
+        mPlaceLab.add(place);
+        getActivity().finish();
+    }
+
     private class PlaceSearchTask extends AsyncTask<Void,Void, List<HttpGooglePlace.Place>> {
 
         private String mQuery;
 
         public PlaceSearchTask(String query) {
+            mProgressBar.setVisibility(View.VISIBLE);
             mQuery = query;
         }
 
@@ -103,25 +128,34 @@ public class PlaceSearchFragment extends Fragment {
         protected void onPostExecute(List<HttpGooglePlace.Place> places) {
             mPlaces = places;
             setupAdapter();
+            mProgressBar.setVisibility(View.GONE);
         }
     }
 
     private class PlaceDetailsTask extends  AsyncTask<Void,Void, HttpGooglePlace.PlaceGeometry> {
 
-        private String mPlaceId;
+        private HttpGooglePlace.Place mGooglePlace;
 
-        public PlaceDetailsTask(String placeId) {
-            mPlaceId = placeId;
+        public PlaceDetailsTask(HttpGooglePlace.Place place) {
+            mGooglePlace = place;
         }
 
         @Override
         protected HttpGooglePlace.PlaceGeometry doInBackground(Void... params) {
-            return new HttpGooglePlace().getPlaceGeometry(mPlaceId);
+            return new HttpGooglePlace().getPlaceGeometry(mGooglePlace.getPlaceId());
 
         }
 
         @Override
         protected void onPostExecute(HttpGooglePlace.PlaceGeometry placeGeometry) {
+            Place place = new Place();
+            place.setName(mGooglePlace.getCity());
+            place.setCountry(mGooglePlace.getCountry());
+            place.setExternalId(mGooglePlace.getPlaceId());
+            place.setLatitude(placeGeometry.getLocation().getLatitude());
+            place.setLongitude(placeGeometry.getLocation().getLongitude());
+            place.setRegion(mGooglePlace.getRegion());
+            addPlace(place);
             Log.i(TAG, placeGeometry.getLocation().toString());
         }
     }
@@ -146,7 +180,7 @@ public class PlaceSearchFragment extends Fragment {
         @Override
         public void onClick(View v) {
             Log.i(TAG, "Selected place id" + mPlace.getPlaceId());
-            new PlaceDetailsTask(mPlace.getPlaceId()).execute();
+            new PlaceDetailsTask(mPlace).execute();
         }
     }
 

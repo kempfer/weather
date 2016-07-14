@@ -22,6 +22,7 @@ public class WeatherBaseHelper extends SQLiteOpenHelper {
                 " _id integer primary key autoincrement, " +
                 PlaceTable.Cols.UUID + " TEXT, " +
                 PlaceTable.Cols.NAME + " TEXT, " +
+                PlaceTable.Cols.REGION + " TEXT, " +
                 PlaceTable.Cols.COUNTRY + " TEXT, " +
                 PlaceTable.Cols.EXTERNAL_ID + " TEXT, " +
                 PlaceTable.Cols.LATITUDE + " REAL, " +
