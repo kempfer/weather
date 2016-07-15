@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HttpOpenWeatherMap extends Http {
@@ -45,18 +46,18 @@ public class HttpOpenWeatherMap extends Http {
         getToDay(location.getLatitude(), location.getLongitude());
     }
 
-    public void getForecast (double latitude, double longitude) {
+    public  List<Weather> getForecast (double latitude, double longitude) {
 
         String urlString = ENDPOINT.buildUpon()
-                .appendPath("weather")
+                .appendPath("forecast")
                 .appendQueryParameter("lat", Double.toString(latitude))
                 .appendQueryParameter("lon", Double.toString(longitude))
                 .toString();
         try {
             String result = getUrlString(urlString);
-            return parseToDayResponse(result);
+            return parseForecast(result);
         } catch (IOException e){
-            Log.e(TAG, "ERROR weather To Day" + e);
+            Log.e(TAG, "ERROR weather Forecast " + e);
         }
 
         return  null;
@@ -83,6 +84,24 @@ public class HttpOpenWeatherMap extends Http {
         return  null;
     }
 
+    private List<Weather> parseForecast (String jsonBody) {
+        try {
+            List<Weather> weathers = new ArrayList<>();
+            JSONObject jsonObject = new JSONObject(jsonBody);
+            JSONArray list = jsonObject.getJSONArray("list");
+            for (int i = 0; i < list.length(); i ++) {
+                weathers.add(parseWeather(list.getJSONObject(i)));
+            }
+
+            return weathers;
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to fetch weather forecast", e);
+        }
+
+        return  null;
+    }
+
     private Weather parseWeather (JSONObject jsonObject) throws JSONException {
         Weather weather = new Weather();
         JSONObject main = jsonObject.getJSONObject("main");
@@ -103,9 +122,5 @@ public class HttpOpenWeatherMap extends Http {
 
         return weather;
     }
-
-
-
-
 
 }

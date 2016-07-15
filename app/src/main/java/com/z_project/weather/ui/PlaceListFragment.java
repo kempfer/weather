@@ -57,19 +57,19 @@ public class PlaceListFragment extends Fragment {
         return  view;
     }
 
-    private class WeatcherTask extends AsyncTask<Void,Void,Void> {
+    private class WeatherTask extends AsyncTask<Void,Void,Void> {
 
         private Place mPlace;
 
-        public WeatcherTask(Place place) {
+        public WeatherTask(Place place) {
             mPlace = place;
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            Weather weather = new HttpOpenWeatherMap().getToDay(mPlace.getLatitude(), mPlace.getLongitude());
+            List <Weather> weathers = new HttpOpenWeatherMap().getForecast(mPlace.getLatitude(), mPlace.getLongitude());
 
-            Log.i(TAG, "weather "  + weather.getDescription());
+            Log.i(TAG, "weather "  + weathers.size());
             return null;
 
         }
@@ -95,7 +95,7 @@ public class PlaceListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            new WeatcherTask(mPlace).execute();
+            new WeatherTask(mPlace).execute();
         }
     }
 
