@@ -15,8 +15,8 @@ import android.widget.TextView;
 import com.z_project.weather.Place;
 import com.z_project.weather.PlaceLab;
 import com.z_project.weather.R;
-import com.z_project.weather.http.HttpGooglePlace;
-import com.z_project.weather.http.OpenWeatherMap;
+import com.z_project.weather.Weather;
+import com.z_project.weather.http.HttpOpenWeatherMap;
 
 import java.util.List;
 
@@ -67,8 +67,9 @@ public class PlaceListFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            new OpenWeatherMap().getToDay(mPlace.getLatitude(), mPlace.getLongitude());
+            Weather weather = new HttpOpenWeatherMap().getToDay(mPlace.getLatitude(), mPlace.getLongitude());
 
+            Log.i(TAG, "weather "  + weather.getDescription());
             return null;
 
         }
