@@ -1,8 +1,12 @@
 package com.z_project.weather;
 
-
 public class Weather {
 
+    private String mPlaceId;
+
+    private Integer mSunrise;
+
+    private Integer mSunset;
 
     private Double mTemperature;
 
@@ -21,6 +25,31 @@ public class Weather {
     private String icon;
 
     private int time;
+
+
+    public String getPlaceId() {
+        return mPlaceId;
+    }
+
+    public void setPlaceId(String placeId) {
+        mPlaceId = placeId;
+    }
+
+    public int getSunrise() {
+        return mSunrise;
+    }
+
+    public void setSunrise(int mSunrise) {
+        this.mSunrise = mSunrise;
+    }
+
+    public int getSunset() {
+        return mSunset;
+    }
+
+    public void setSunset(int mSunset) {
+        this.mSunset = mSunset;
+    }
 
     public Double getTemperature() {
         return mTemperature;

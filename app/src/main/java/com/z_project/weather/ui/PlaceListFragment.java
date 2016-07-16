@@ -1,5 +1,6 @@
 package com.z_project.weather.ui;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +9,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -16,6 +20,7 @@ import com.z_project.weather.Place;
 import com.z_project.weather.PlaceLab;
 import com.z_project.weather.R;
 import com.z_project.weather.Weather;
+import com.z_project.weather.WeatherLab;
 import com.z_project.weather.http.HttpOpenWeatherMap;
 
 import java.util.List;
@@ -28,6 +33,8 @@ public class PlaceListFragment extends Fragment {
 
     private PlaceAdapter mPlaceAdaper;
 
+    private WeatherLab mWeatherLab;
+
     public static PlaceListFragment newInstance () {
 
         return new PlaceListFragment();
@@ -36,6 +43,9 @@ public class PlaceListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mWeatherLab = WeatherLab.getInstance(getActivity());
+
+        setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -57,6 +67,26 @@ public class PlaceListFragment extends Fragment {
         return  view;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_place_list, menu);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == R.id.menu_item_add_place) {
+            Intent intent = new Intent(getActivity(), PlaceSearchActivity.class);
+            startActivity(intent);
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private class WeatherTask extends AsyncTask<Void,Void,Void> {
 
         private Place mPlace;
@@ -67,9 +97,9 @@ public class PlaceListFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            List <Weather> weathers = new HttpOpenWeatherMap().getForecast(mPlace.getLatitude(), mPlace.getLongitude());
-
-            Log.i(TAG, "weather "  + weathers.size());
+            Weather weather = new HttpOpenWeatherMap().getToDay(mPlace);
+            mWeatherLab.add(weather);
+            Log.i(TAG, "weather "  + weather.getDescription());
             return null;
 
         }
@@ -95,7 +125,8 @@ public class PlaceListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            new WeatherTask(mPlace).execute();
+            //new WeatherTask(mPlace).execute();
+            Log.i(TAG, mWeatherLab.getDoDay(mPlace).getDescription());
         }
     }
 

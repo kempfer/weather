@@ -27,13 +27,10 @@
             </intent-filter>
         </activity>
 
-        <!--<activity android:name=".ui.PlaceSearchActivity" android:theme="@style/SearchTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+        <activity
+            android:name=".ui.PlaceSearchActivity" android:theme="@style/SearchTheme">
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>-->
+        </activity>
     </application>
 
 

@@ -5,6 +5,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 
+import com.z_project.weather.Place;
 import com.z_project.weather.Weather;
 
 import org.json.JSONArray;
@@ -26,24 +27,24 @@ public class HttpOpenWeatherMap extends Http {
             .appendQueryParameter("appid", API_KEY)
             .build();
 
-    public Weather getToDay (double latitude, double longitude) {
+    public Weather getToDay (Place place) {
         String urlString = ENDPOINT.buildUpon()
                 .appendPath("weather")
-                .appendQueryParameter("lat", Double.toString(latitude))
-                .appendQueryParameter("lon", Double.toString(longitude))
+                .appendQueryParameter("lat", Double.toString(place.getLatitude()))
+                .appendQueryParameter("lon", Double.toString(place.getLongitude()))
                 .toString();
         try {
             String result = getUrlString(urlString);
-            return parseToDayResponse(result);
+
+            Weather weather = parseToDayResponse(result);
+            weather.setPlaceId(place.getId().toString());
+
+            return  weather;
         } catch (IOException e){
             Log.e(TAG, "ERROR weather To Day" + e);
         }
 
         return  null;
-    }
-
-    public void  getToDay (Location location) {
-        getToDay(location.getLatitude(), location.getLongitude());
     }
 
     public  List<Weather> getForecast (double latitude, double longitude) {
@@ -54,6 +55,7 @@ public class HttpOpenWeatherMap extends Http {
                 .appendQueryParameter("lon", Double.toString(longitude))
                 .toString();
         try {
+            Log.i(TAG, urlString);
             String result = getUrlString(urlString);
             return parseForecast(result);
         } catch (IOException e){
@@ -75,7 +77,7 @@ public class HttpOpenWeatherMap extends Http {
         try {
 
             JSONObject jsonObject = new JSONObject(jsonBody);
-            return parseWeather(jsonObject);
+            return parseWeatherWithSun(jsonObject);
 
         } catch (JSONException e) {
             Log.e(TAG, "Failed to fetch weather to day", e);
@@ -119,6 +121,15 @@ public class HttpOpenWeatherMap extends Http {
         weather.setIcon(weatherMain.getString("icon"));
         weather.setTime(jsonObject.getInt("dt"));
 
+
+        return weather;
+    }
+
+    private Weather parseWeatherWithSun (JSONObject jsonObject) throws JSONException {
+        Weather weather = parseWeather(jsonObject);
+        JSONObject sys = jsonObject.getJSONObject("sys");
+        weather.setSunrise(sys.getInt("sunrise"));
+        weather.setSunset(sys.getInt("sunset"));
 
         return weather;
     }
