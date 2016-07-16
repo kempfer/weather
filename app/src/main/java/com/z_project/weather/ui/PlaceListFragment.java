@@ -22,6 +22,7 @@ import com.z_project.weather.R;
 import com.z_project.weather.Weather;
 import com.z_project.weather.WeatherLab;
 import com.z_project.weather.http.HttpOpenWeatherMap;
+import com.z_project.weather.services.PollService;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class PlaceListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mWeatherLab = WeatherLab.getInstance(getActivity());
-
+        PollService.setServiceAlarm(getActivity());
         setHasOptionsMenu(true);
     }
 
@@ -98,7 +99,7 @@ public class PlaceListFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             Weather weather = new HttpOpenWeatherMap().getToDay(mPlace);
-            mWeatherLab.add(weather);
+            mWeatherLab.updateToDay(weather);
             Log.i(TAG, "weather "  + weather.getDescription());
             return null;
 
@@ -126,7 +127,7 @@ public class PlaceListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             //new WeatherTask(mPlace).execute();
-            Log.i(TAG, mWeatherLab.getDoDay(mPlace).getDescription());
+            Log.i(TAG, mWeatherLab.getToDay(mPlace).getDescription());
         }
     }
 

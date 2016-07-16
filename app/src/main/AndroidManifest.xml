@@ -31,6 +31,8 @@
             android:name=".ui.PlaceSearchActivity" android:theme="@style/SearchTheme">
 
         </activity>
+
+        <service android:name=".services.PollService"/>
     </application>
 
 

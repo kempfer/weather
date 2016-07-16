@@ -34,12 +34,20 @@ public class WeatherLab {
         return mInstance;
     }
 
-    public void add (Weather weather) {
+    public void updateToDay (Weather weather) {
         ContentValues contentValues = getContentValues(weather);
+        deleteToDay(weather);
         mDataBase.insert(WeatherTable.NAME, null, contentValues);
     }
 
-    public Weather getDoDay (Place place) {
+    public void deleteToDay (Weather weather) {
+        String uuidString = weather.getPlaceId().toString();
+
+        mDataBase.delete(WeatherTable.NAME, WeatherTable.Cols.PLACE_UUID + " = ?" + " AND " + WeatherTable.Cols.SUNRISE + " IS NULL",
+                new String[]{uuidString});
+    }
+
+    public Weather getToDay (Place place) {
         WeatherCursorWrapper cursorWrapper = queryWeather(
                 WeatherTable.Cols.PLACE_UUID + " = ?",
                 new String[]{place.getId().toString()}
