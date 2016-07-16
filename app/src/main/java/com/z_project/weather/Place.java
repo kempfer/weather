@@ -88,4 +88,13 @@ public class Place {
         return description;
 
     }
+
+    public String getSmallDescription () {
+        String description = getName();
+        if(getRegion() != null && !getCountry().isEmpty()) {
+            description += ", " + getCountry();
+        }
+
+        return description;
+    }
 }

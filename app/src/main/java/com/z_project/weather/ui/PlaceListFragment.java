@@ -1,5 +1,6 @@
 package com.z_project.weather.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,6 +31,8 @@ public class PlaceListFragment extends Fragment {
 
     private static final String TAG = "PlaceListFragment";
 
+    private static final int REQUEST_SEARCH_PLACE = 0;
+
     private RecyclerView mPlaceRecyclerView;
 
     private PlaceAdapter mPlaceAdaper;
@@ -57,13 +60,7 @@ public class PlaceListFragment extends Fragment {
         mPlaceRecyclerView = (RecyclerView) view.findViewById(R.id.place_recycler_view);
         mPlaceRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        List<Place> places = PlaceLab.getInstance(getActivity()).getPlaces();
-
-        Log.i(TAG, "place count" + places.size());
-
-        mPlaceAdaper = new PlaceAdapter(places);
-        mPlaceRecyclerView.setAdapter(mPlaceAdaper);
-
+        setupAdapter();
 
         return  view;
     }
@@ -80,12 +77,34 @@ public class PlaceListFragment extends Fragment {
 
         if(item.getItemId() == R.id.menu_item_add_place) {
             Intent intent = new Intent(getActivity(), PlaceSearchActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_SEARCH_PLACE);
 
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_SEARCH_PLACE) {
+            Log.i(TAG, "onActivityResult 3");
+            setupAdapter();
+        }
+
+    }
+
+    private void setupAdapter () {
+
+        List<Place> places = PlaceLab.getInstance(getActivity()).getPlaces();
+
+        if(isAdded()) {
+            mPlaceAdaper = new PlaceAdapter(places);
+            mPlaceRecyclerView.setAdapter(mPlaceAdaper);
+        }
+
+        Log.i(TAG, "place count: " + places.size());
     }
 
     private class WeatherTask extends AsyncTask<Void,Void,Void> {
@@ -121,7 +140,7 @@ public class PlaceListFragment extends Fragment {
 
         private void bindPlace (Place place) {
             mPlace = place;
-            mNameTextView.setText(mPlace.getDescription());
+            mNameTextView.setText(mPlace.getSmallDescription());
         }
 
         @Override

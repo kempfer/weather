@@ -1,5 +1,7 @@
 package com.z_project.weather.ui;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -90,6 +92,7 @@ public class PlaceSearchFragment extends Fragment {
         mBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                getActivity().setResult(Activity.RESULT_OK);
                 getActivity().finish();
             }
         });

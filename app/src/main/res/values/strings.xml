@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">weather</string>
+    <string name="app_name">ZP Weather</string>
     <string name="search">Search</string>
     <string name="clear_search">Clear</string>
 </resources>
